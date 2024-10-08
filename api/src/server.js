@@ -113,7 +113,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Usando as rotas
-app.use("/api/v1", cargoRoutes);
+app.use("/api/v1/cargo", cargoRoutes);
 app.use("/api/v1/empregado", empregadoRoutes);
 app.use("/api/v1/auth", authRoutes); // Usando a rota de autenticação
 

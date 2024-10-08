@@ -5,7 +5,6 @@ import { hashPassword } from "../utils/PasswordEncrypt.js";
 // Função para verificar se o cargo existe
 export const verificarCargo = async (idCargo) => {
   const cargo = await Cargo.findOne({ idCargo: idCargo });
-  console.log(cargo);
   if (!cargo) {
     throw new Error("Cargo não encontrado");
   }

@@ -1,5 +1,6 @@
 import express from "express";
 import passport from "passport";
+import { login, logout } from "../controllers/authController.js"; // Controladores de login e logout usando JWT
 
 const router = express.Router();
 
@@ -34,7 +35,6 @@ router.get(
  *       302:
  *         description: Redireciona para a rota de sucesso ou falha após a autenticação do Google.
  */
-// Rota de callback após a autenticação
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/api/v1/auth/failure" }),
@@ -43,6 +43,108 @@ router.get(
     res.redirect(`http://localhost:3000/dashboard`);
   }
 );
+
+/**
+ * @openapi
+ * /auth/login:
+ *   post:
+ *     summary: Realiza o login de um usuário utilizando e-mail e senha.
+ *     tags:
+ *       - Autenticação
+ *     description: Autentica um usuário através de e-mail e senha, retornando um token JWT.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - senha
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: E-mail do usuário
+ *                 example: "joao@exemplo.com"
+ *               senha:
+ *                 type: string
+ *                 description: Senha do usuário
+ *                 example: "minhasenha123"
+ *     responses:
+ *       200:
+ *         description: Login realizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Login realizado com sucesso"
+ *                 token:
+ *                   type: string
+ *                   description: Token JWT para autenticação
+ *                 empregado:
+ *                   type: object
+ *                   properties:
+ *                     idEmpregado:
+ *                       type: integer
+ *                     nomeEmpregado:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     idCargo:
+ *                       type: integer
+ *                     ativo:
+ *                       type: boolean
+ *       400:
+ *         description: Erro no login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro no login"
+ *                 error:
+ *                   type: string
+ *                   example: "Senha incorreta."
+ */
+router.post("/login", login);
+
+/**
+ * @openapi
+ * /auth/logout:
+ *   post:
+ *     summary: Faz logout do usuário autenticado.
+ *     tags:
+ *       - Autenticação
+ *     description: Faz logout do usuário, limpando o cookie JWT.
+ *     responses:
+ *       200:
+ *         description: Logout realizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Logout realizado com sucesso"
+ *       500:
+ *         description: Erro ao realizar logout
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro ao realizar logout"
+ */
+router.post("/logout", logout);
+
 /**
  * @openapi
  * /auth/success:
@@ -75,7 +177,6 @@ router.get(
  *                       description: E-mail do usuário autenticado.
  */
 router.get("/success", (req, res) => {
-  console.log("req.user na rota /success:", req.user);
   if (!req.user) {
     return res.status(401).json({ message: "Usuário não autenticado." });
   }
@@ -105,24 +206,6 @@ router.get("/success", (req, res) => {
  */
 router.get("/failure", (req, res) => {
   res.status(401).json({ message: "Falha na autenticação." });
-});
-
-/**
- * @openapi
- * /auth/logout:
- *   get:
- *     summary: Faz logout do usuário autenticado.
- *     tags:
- *       - Autenticação
- *     description: Faz o logout do usuário e redireciona para a página inicial.
- *     responses:
- *       302:
- *         description: Redireciona para a página inicial após o logout.
- */
-router.get("/logout", (req, res) => {
-  req.logout(() => {
-    res.redirect("/api-documentacao/");
-  });
 });
 
 export default router;

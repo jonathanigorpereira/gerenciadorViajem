@@ -6,6 +6,7 @@ import {
   updateEmpregado,
   deleteEmpregado,
 } from "../controllers/EmpregadoController.js";
+import { verificarToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -91,7 +92,7 @@ const router = express.Router();
  *           default: true
  *           example: true
  */
-router.get("/listar", getEmpregadosComCargos);
+router.get("/listar", verificarToken, getEmpregadosComCargos);
 
 /**
  * @openapi
@@ -160,7 +161,7 @@ router.get("/listar", getEmpregadosComCargos);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/:idEmpregado", getEmpregadoPorId);
+router.get("/:idEmpregado", verificarToken, getEmpregadoPorId);
 
 /**
  * @openapi
@@ -207,7 +208,7 @@ router.get("/:idEmpregado", getEmpregadoPorId);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/cadastrar", cadastrarEmpregado);
+router.post("/cadastrar", verificarToken, cadastrarEmpregado);
 
 /**
  * @openapi
@@ -299,7 +300,7 @@ router.post("/cadastrar", cadastrarEmpregado);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.put("/:idEmpregado", updateEmpregado);
+router.put("/:idEmpregado", verificarToken, updateEmpregado);
 
 /**
  * @openapi
@@ -334,6 +335,6 @@ router.put("/:idEmpregado", updateEmpregado);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.delete("/:idEmpregado", deleteEmpregado);
+router.delete("/:idEmpregado", verificarToken, deleteEmpregado);
 
 export default router;

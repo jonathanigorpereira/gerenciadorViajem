@@ -8,7 +8,7 @@ const options = {
     info: {
       title: "Gerenciamento de Viagens API",
       description:
-        "API para gerenciamento de viagens com suporte a OAuth Google",
+        "API para gerenciamento de viagens com suporte a OAuth Google e JWT",
       version: "1.0.0", // Versão da API
     },
     servers: [
@@ -31,11 +31,20 @@ const options = {
             },
           },
         },
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Autenticação via token JWT. Exemplo: 'Bearer {token}'",
+        },
       },
     },
     security: [
       {
         googleOAuth: [],
+      },
+      {
+        BearerAuth: [], // Definindo segurança global para JWT
       },
     ],
   },
