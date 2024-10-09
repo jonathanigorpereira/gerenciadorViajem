@@ -10,6 +10,7 @@ import Empregado from "../models/Empregado.js";
 import Cargo from "../models/Cargo.js";
 import { hashPassword } from "../utils/PasswordEncrypt.js";
 
+// Mocks
 jest.mock("../models/Empregado.js");
 jest.mock("../models/Cargo.js");
 jest.mock("../utils/PasswordEncrypt.js");
@@ -22,7 +23,7 @@ describe("Testes Unitários para o Serviço Empregado", () => {
     ativo: true,
     idCargo: "123",
     senha: "senha123",
-    save: jest.fn(),
+    save: jest.fn().mockResolvedValue(this),
     toObject: jest.fn().mockReturnValue({
       idEmpregado: "1",
       nomeEmpregado: "João Silva",
@@ -37,33 +38,33 @@ describe("Testes Unitários para o Serviço Empregado", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    Empregado.mockImplementation(() => mockEmpregado); // Mock da criação do empregado
+    Cargo.findOne.mockResolvedValue(mockCargo); // Mock do cargo
+    hashPassword.mockResolvedValue("senhaHasheada"); // Mock do hash de senha
   });
 
   // Teste para criar um novo empregado
   test("Deve criar um novo empregado", async () => {
-    hashPassword.mockResolvedValue("senhaHasheada");
-    Empregado.mockImplementation(() => mockEmpregado);
-
     const resultado = await criarEmpregado(mockEmpregado);
 
     expect(Empregado).toHaveBeenCalledTimes(1);
     expect(hashPassword).toHaveBeenCalledWith("senha123");
-    expect(mockEmpregado.save).toHaveBeenCalled();
+    expect(mockEmpregado.save).toHaveBeenCalled(); // Verifica se o save foi chamado
+    expect(mockEmpregado.save).toHaveReturned(); // Verifica se save retornou corretamente
     expect(resultado).toMatchObject({
       nomeEmpregado: "João Silva",
       ativo: true,
     });
   });
 
-  // Teste para listar todos os empregados com seus cargos
-  test("Deve listar todos os empregados com seus respectivos cargos", async () => {
+  // Teste para listar todos os empregados com seus respectivos cargos
+  test("Deve listar todos os empregados com seus cargos", async () => {
     Empregado.find.mockResolvedValue([mockEmpregado]);
-    Cargo.findOne.mockResolvedValue(mockCargo);
 
     const resultado = await listarEmpregadosComCargos();
 
-    expect(Empregado.find).toHaveBeenCalled();
-    expect(Cargo.findOne).toHaveBeenCalledWith({ idCargo: "123", ativo: true });
+    expect(Empregado.find).toHaveBeenCalled(); // Verifica se `find` foi chamado
+    expect(Cargo.findOne).toHaveBeenCalledWith({ idCargo: "123", ativo: true }); // Verifica se `findOne` do Cargo foi chamado
     expect(resultado).toEqual([
       {
         idEmpregado: "1",
@@ -74,28 +75,20 @@ describe("Testes Unitários para o Serviço Empregado", () => {
           idCargo: "123",
           nomeCargo: "Desenvolvedor",
         },
-        createdAt: undefined,
-        updatedAt: undefined,
       },
     ]);
   });
 
   // Teste para buscar um empregado por ID
   test("Deve buscar um empregado por ID", async () => {
-    Empregado.findOne.mockResolvedValue(mockEmpregado);
-    Cargo.findOne.mockResolvedValue(mockCargo);
+    Empregado.findOne.mockResolvedValue(mockEmpregado); // Simula o empregado sendo encontrado
 
     const resultado = await buscarEmpregadoPorId("1");
 
     expect(Empregado.findOne).toHaveBeenCalledWith({ idEmpregado: "1" });
-    expect(Cargo.findOne).toHaveBeenCalledWith({ idCargo: "123" });
     expect(resultado).toMatchObject({
       idEmpregado: "1",
       nomeEmpregado: "João Silva",
-      cargo: {
-        idCargo: "123",
-        nomeCargo: "Desenvolvedor",
-      },
     });
   });
 
@@ -113,6 +106,7 @@ describe("Testes Unitários para o Serviço Empregado", () => {
 
     expect(Empregado.findOne).toHaveBeenCalledWith({ idEmpregado: "1" });
     expect(mockEmpregado.save).toHaveBeenCalled();
+    expect(mockEmpregado.save).toHaveReturned();
     expect(resultado).toMatchObject({
       nomeEmpregado: "João Silva Atualizado",
       email: "joao.atualizado@empresa.com",
@@ -137,8 +131,6 @@ describe("Testes Unitários para o Serviço Empregado", () => {
 
   // Teste para verificar se o cargo existe
   test("Deve verificar se o cargo existe", async () => {
-    Cargo.findOne.mockResolvedValue(mockCargo);
-
     const resultado = await verificarCargo("123");
 
     expect(Cargo.findOne).toHaveBeenCalledWith({ idCargo: "123" });

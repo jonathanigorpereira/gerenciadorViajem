@@ -5,6 +5,7 @@ export const criarCargo = async (dadosCargo) => {
   try {
     const novoCargo = new Cargo(dadosCargo);
     await novoCargo.save();
+    console.log("novoCargo", novoCargo);
     return novoCargo;
   } catch (error) {
     throw new Error("Erro ao criar o cargo: " + error.message);
@@ -24,7 +25,7 @@ export const listarCargos = async () => {
 // Função para buscar um cargo por ID (Read by ID)
 export const buscarCargoPorId = async (idCargo) => {
   try {
-    const cargo = await Cargo.findById(idCargo);
+    const cargo = await Cargo.findOne({ idCargo });
     if (!cargo) {
       throw new Error("Cargo não encontrado");
     }
@@ -37,12 +38,12 @@ export const buscarCargoPorId = async (idCargo) => {
 // Função para atualizar um cargo (Update)
 export const atualizarCargo = async (idCargo, dadosAtualizados) => {
   try {
-    const cargoAtualizado = await Cargo.findByIdAndUpdate(
-      idCargo,
+    const cargoAtualizado = await Cargo.findOneAndUpdate(
+      { idCargo: idCargo },
       dadosAtualizados,
       {
-        new: true, // Retorna o documento atualizado
-        runValidators: true, // Aplica as validações definidas no modelo
+        new: true,
+        runValidators: true,
       }
     );
 
@@ -58,7 +59,7 @@ export const atualizarCargo = async (idCargo, dadosAtualizados) => {
 // Função para excluir um cargo (Delete)
 export const excluirCargo = async (idCargo) => {
   try {
-    const cargoExcluido = await Cargo.findByIdAndDelete(idCargo);
+    const cargoExcluido = await Cargo.findOneAndDelete({ idCargo: idCargo });
 
     if (!cargoExcluido) {
       throw new Error("Cargo não encontrado para exclusão");

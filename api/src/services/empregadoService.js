@@ -70,17 +70,14 @@ export const listarEmpregadosComCargos = async () => {
 // Função para buscar um empregado pelo idEmpregado
 export const buscarEmpregadoPorId = async (idEmpregado) => {
   try {
-    // Busca o empregado pelo idEmpregado
-    const empregado = await Empregado.findOne({ idEmpregado: idEmpregado });
+    const empregado = await Empregado.findOne({ idEmpregado });
 
     if (!empregado) {
       throw new Error("Empregado não encontrado");
     }
 
-    // Busca o cargo associado ao idCargo do empregado
     const cargo = await Cargo.findOne({ idCargo: empregado.idCargo });
 
-    // Retorna o empregado com os detalhes do cargo
     return {
       idEmpregado: empregado.idEmpregado,
       nomeEmpregado: empregado.nomeEmpregado,
@@ -94,7 +91,6 @@ export const buscarEmpregadoPorId = async (idEmpregado) => {
       updatedAt: empregado.updatedAt,
     };
   } catch (error) {
-    console.error("Erro ao buscar empregado pelo id:", error);
     throw new Error("Não foi possível buscar o empregado.");
   }
 };
@@ -146,11 +142,14 @@ export const excluirEmpregado = async (idEmpregado) => {
       throw new Error("Empregado não encontrado");
     }
 
-    await Empregado.deleteOne({ idEmpregado: idEmpregado });
+    const resultado = await Empregado.deleteOne({ idEmpregado: idEmpregado });
+
+    if (resultado.deletedCount === 0) {
+      throw new Error("Erro ao excluir o empregado.");
+    }
 
     return { message: "Empregado excluído com sucesso" };
   } catch (error) {
-    console.error("Erro ao excluir o empregado:", error);
     throw new Error("Não foi possível excluir o empregado.");
   }
 };

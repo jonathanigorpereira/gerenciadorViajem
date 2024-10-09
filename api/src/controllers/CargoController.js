@@ -12,12 +12,10 @@ export const cadastrarCargo = async (req, res) => {
   try {
     // Verifica se o usuário logado tem o cargo correto para realizar a ação
     if (req.user.idCargo !== 1) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Acesso negado. Apenas administradores podem realizar esta ação.",
-        });
+      return res.status(403).json({
+        message:
+          "Acesso negado. Apenas administradores podem realizar esta ação.",
+      });
     }
 
     // Validação dos dados de entrada
@@ -77,12 +75,10 @@ export const atualizarCargoExistente = async (req, res) => {
   try {
     // Verifica se o usuário logado tem permissão (idCargo = 1)
     if (req.user.idCargo !== 1) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Acesso negado. Apenas administradores podem realizar esta ação.",
-        });
+      return res.status(403).json({
+        message:
+          "Acesso negado. Apenas administradores podem realizar esta ação.",
+      });
     }
 
     // Validação dos dados de entrada (opcional, caso queira validar)
@@ -91,7 +87,8 @@ export const atualizarCargoExistente = async (req, res) => {
       return res.status(400).json({ errors });
     }
 
-    const cargoAtualizado = await atualizarCargo(req.params.idCargo, value);
+    const idCargo = Number(req.params.idCargo);
+    const cargoAtualizado = await atualizarCargo(idCargo, value);
     res.status(200).json({
       message: "Cargo atualizado com sucesso",
       cargo: cargoAtualizado,
@@ -110,15 +107,13 @@ export const deletarCargo = async (req, res) => {
   try {
     // Verifica se o usuário logado tem permissão (idCargo = 1)
     if (req.user.idCargo !== 1) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Acesso negado. Apenas administradores podem realizar esta ação.",
-        });
+      return res.status(403).json({
+        message:
+          "Acesso negado. Apenas administradores podem realizar esta ação.",
+      });
     }
-
-    await excluirCargo(req.params.idCargo);
+    const idCargo = Number(req.params.idCargo);
+    await excluirCargo(idCargo);
     res.status(200).json({
       message: "Cargo excluído com sucesso",
     });

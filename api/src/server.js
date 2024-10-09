@@ -8,7 +8,8 @@ import swaggerDocs from "./swagger.js";
 import connectDB from "./config/db.js";
 import cargoRoutes from "./routes/cargoRoute.js";
 import empregadoRoutes from "./routes/empregadoRoute.js";
-import authRoutes from "./routes/authRoute.js"; // Importa as rotas de autenticação
+import unidadeFederativaRoutes from "./routes/unidadeFederativaRoute.js";
+import authRoutes from "./routes/authRoute.js";
 import Empregado from "./models/Empregado.js";
 
 // Configuração do ambiente
@@ -115,7 +116,8 @@ passport.deserializeUser(async (id, done) => {
 // Usando as rotas
 app.use("/api/v1/cargo", cargoRoutes);
 app.use("/api/v1/empregado", empregadoRoutes);
-app.use("/api/v1/auth", authRoutes); // Usando a rota de autenticação
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/unidadeFederativa", unidadeFederativaRoutes);
 
 // Define a porta usando a variável de ambiente ou 3333
 const PORT = process.env.PORT || 3333;
