@@ -18,18 +18,11 @@ jobs:
       with:
         node-version: '20.x'  # Especifique a versão do Node.js (ajuste conforme necessário)
 
-    - name: Install Yarn
-      run: corepack enable && corepack prepare yarn@stable --activate  # Ativa o Yarn se ainda não estiver habilitado
-
     - name: Change directory to API
-      working-directory: ./api  # Altera o diretório para a pasta "api" dentro do monorepo
-      run: echo "Navigating to API directory"  # Comando dummy apenas para validar o working-directory
-
-    - name: Install dependencies with Yarn
-      run: yarn install  # Instala as dependências usando Yarn na pasta "api"
+      run: cd ./api && yarn install  # Altera o diretório para a pasta "api" e instala as dependências
 
     - name: Run tests with Yarn
-      run: yarn test  # Executa os testes dentro da pasta "api"
+      run: cd ./api && yarn test  # Executa os testes dentro da pasta "api"
 
     - name: Build project with Yarn
-      run: yarn build  # Constrói o projeto da API
+      run: cd ./api && yarn build  # Constrói o projeto da API
