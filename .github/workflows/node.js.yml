@@ -1,0 +1,38 @@
+name: Build and Deploy to Render
+
+on:
+  push:
+    branches:
+      - main  # O workflow será executado sempre que houver um push na branch 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Clona o repositório
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.x'  # Especifique a versão do Node.js (ajuste conforme necessário)
+
+    - name: Install Yarn
+      run: corepack enable && corepack prepare yarn@stable --activate  # Ativa o Yarn se ainda não estiver habilitado
+
+    - name: Change directory to API
+      working-directory: ./api  # Altera o diretório para a pasta "api" dentro do monorepo
+
+    - name: Install dependencies with Yarn
+      run: yarn install  # Instala as dependências usando Yarn na pasta "api"
+
+    - name: Run tests with Yarn
+      run: yarn test  # Executa os testes dentro da pasta "api"
+
+    - name: Build project with Yarn
+      run: yarn build  # Constrói o projeto da API
+
+    - name: Push changes to Render
+      if: success()  # Somente faz o push se os testes e o build forem bem-sucedidos
+      run: git push origin main  # Faz o push na branch monitorada pelo Render
