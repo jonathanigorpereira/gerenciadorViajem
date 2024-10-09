@@ -23,6 +23,7 @@ jobs:
 
     - name: Change directory to API
       working-directory: ./api  # Altera o diretório para a pasta "api" dentro do monorepo
+      run: echo "Navigating to API directory"  # Comando dummy apenas para validar o working-directory
 
     - name: Install dependencies with Yarn
       run: yarn install  # Instala as dependências usando Yarn na pasta "api"
