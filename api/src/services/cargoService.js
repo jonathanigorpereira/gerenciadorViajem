@@ -5,7 +5,6 @@ export const criarCargo = async (dadosCargo) => {
   try {
     const novoCargo = new Cargo(dadosCargo);
     await novoCargo.save();
-    console.log("novoCargo", novoCargo);
     return novoCargo;
   } catch (error) {
     throw new Error("Erro ao criar o cargo: " + error.message);

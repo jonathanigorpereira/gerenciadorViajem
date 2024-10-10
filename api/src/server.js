@@ -9,6 +9,7 @@ import connectDB from "./config/db.js";
 import cargoRoutes from "./routes/cargoRoute.js";
 import empregadoRoutes from "./routes/empregadoRoute.js";
 import unidadeFederativaRoutes from "./routes/unidadeFederativaRoute.js";
+import municipioRoutes from "./routes/municipioRoute.js";
 import authRoutes from "./routes/authRoute.js";
 import Empregado from "./models/Empregado.js";
 
@@ -118,6 +119,7 @@ app.use("/api/v1/cargo", cargoRoutes);
 app.use("/api/v1/empregado", empregadoRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/unidadeFederativa", unidadeFederativaRoutes);
+app.use("/api/v1/municipio", municipioRoutes);
 
 // Define a porta usando a variável de ambiente ou 3333
 const PORT = process.env.PORT || 3333;
