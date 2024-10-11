@@ -187,7 +187,8 @@ export const getViagemById = async (idViagem) => {
 };
 
 // Método para exportar a viagem e destinos em PDF
-export const exportViagemToPdf = async (idViagem, outputPath) => {
+
+export const exportViagemToPdf = async (idViagem, res) => {
   try {
     const viagem = await getViagemById(idViagem);
 
@@ -200,8 +201,15 @@ export const exportViagemToPdf = async (idViagem, outputPath) => {
       size: "A4",
     });
 
-    const writeStream = fs.createWriteStream(outputPath);
-    doc.pipe(writeStream);
+    // Configura o cabeçalho da resposta para PDF
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=viagem_${idViagem}.pdf`
+    );
+
+    // Pipe do PDF diretamente para a resposta
+    doc.pipe(res);
 
     // Definir cores do layout
     const headerColor = "#004080";
@@ -209,21 +217,23 @@ export const exportViagemToPdf = async (idViagem, outputPath) => {
     const secondaryColor = "#B3E5FC";
     const backgroundColor = "#E3F2FD";
     const lightGray = "#F5F5F5";
-
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
-    // Cabeçalho
+    // Definir nova fonte
+    doc.font("Helvetica");
+
+    // Cabeçalho - Centralizado
     doc
       .image(path.join(__dirname, "../utils/icons/airplane-1755.png"), 40, 20, {
         width: 50,
       })
       .fillColor(headerColor)
       .fontSize(24)
-      .text("Comprovante de Viagem", 100, 25, { align: "left" })
+      .text("Comprovante de Viagem", { align: "center" })
       .fontSize(12)
       .fillColor(primaryColor)
-      .text("Seu comprovante oficial de viagem", 100, 50)
+      .text("Seu comprovante oficial de viagem", { align: "center" })
       .moveDown(1.5);
 
     // Informações do Viajante
@@ -327,7 +337,7 @@ export const exportViagemToPdf = async (idViagem, outputPath) => {
       }
     });
 
-    // Rodapé
+    // Rodapé - Centralizado
     doc
       .moveDown(3)
       .fontSize(12)
@@ -341,20 +351,13 @@ export const exportViagemToPdf = async (idViagem, outputPath) => {
       .text(`Número do comprovante: ${viagem.idViagem}`, { align: "center" })
       .moveDown(1.5);
 
+    // Finaliza o PDF
     doc.end();
-
-    return new Promise((resolve, reject) => {
-      writeStream.on("finish", () => {
-        resolve(`PDF gerado com sucesso em: ${outputPath}`);
-      });
-      writeStream.on("error", (error) => {
-        reject(`Erro ao gerar PDF: ${error.message}`);
-      });
-    });
   } catch (error) {
     throw new Error(`Erro ao exportar viagem para PDF: ${error.message}`);
   }
 };
+
 // Atualizar uma viagem
 export const updateViagem = async (idViagem, data) => {
   try {

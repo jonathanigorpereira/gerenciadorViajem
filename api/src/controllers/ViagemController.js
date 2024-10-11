@@ -52,23 +52,7 @@ export const deletarViagem = async (req, res) => {
 export const exportarViagemToPdf = async (req, res) => {
   try {
     const { idViagem } = req.params;
-
-    // Definir o nome do arquivo PDF
-    const fileName = `viagem_${idViagem}.pdf`;
-
-    // Diretório de downloads padrão (usando o diretório de downloads do usuário)
-    const userHomeDir = os.homedir(); // Usando 'os' para obter o diretório de casa do usuário
-    const outputPath = path.join(userHomeDir, "Downloads", fileName);
-
-    // Gerar o PDF
-    await exportViagemToPdf(idViagem, outputPath);
-
-    // Enviar o arquivo para download
-    res.download(outputPath, fileName, (err) => {
-      if (err) {
-        res.status(500).json({ message: "Erro ao baixar o arquivo." });
-      }
-    });
+    await exportViagemToPdf(idViagem, res); // Passa a resposta para o serviço
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
