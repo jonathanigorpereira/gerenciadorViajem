@@ -89,7 +89,7 @@ export const deleteMunicipio = async (idMunicipio) => {
     if (!municipio) {
       throw new Error("Município não encontrado para exclusão.");
     }
-    return municipio;
+    return { message: "Município excluído com sucesso" };
   } catch (error) {
     throw new Error(`Erro ao excluir município: ${error.message}`);
   }

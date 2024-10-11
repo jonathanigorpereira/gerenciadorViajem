@@ -1,6 +1,8 @@
 import express from "express";
 import passport from "passport";
 import { login, logout } from "../controllers/authController.js"; // Controladores de login e logout usando JWT
+import { verificarToken } from "../middlewares/authMiddleware.js";
+import Cargo from "../models/Cargo.js";
 
 const router = express.Router();
 
@@ -176,11 +178,33 @@ router.post("/logout", logout);
  *                       type: string
  *                       description: E-mail do usuário autenticado.
  */
-router.get("/success", (req, res) => {
+router.get("/success", verificarToken, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Usuário não autenticado." });
   }
-  res.json({ message: "Autenticação bem-sucedida!", user: req.user });
+
+  try {
+    // Busca o cargo baseado no idCargo do usuário autenticado
+    const cargo = await Cargo.findOne({ idCargo: req.user.idCargo });
+
+    // Cria o objeto do usuário com os dados do req.user
+    const user = {
+      idEmpregado: req.user.idEmpregado,
+      nomeEmpregado: req.user.nomeEmpregado,
+      cargo: {
+        idCargo: cargo.idCargo,
+        nomeCargo: cargo.nomeCargo,
+        ativo: cargo.ativo,
+      },
+      email: req.user.email,
+    };
+
+    res.json({ message: "Autenticação bem-sucedida!", user: user });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Erro ao buscar dados", error: error.message });
+  }
 });
 
 /**

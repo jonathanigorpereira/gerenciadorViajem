@@ -69,7 +69,7 @@ export const updateUnidadeFederativa = async (idUnidadeFederativa, data) => {
         { SiglaUnidadeFederativa: data.SiglaUnidadeFederativa },
         { NomeUnidadeFederativa: data.NomeUnidadeFederativa },
       ],
-      idUnidadeFederativa: { $ne: idUnidadeFederativa }, // Exclui a própria unidade federativa da verificação
+      idUnidadeFederativa: { $ne: idUnidadeFederativa },
     });
 
     if (existingUnidade) {
@@ -80,9 +80,9 @@ export const updateUnidadeFederativa = async (idUnidadeFederativa, data) => {
 
     // Atualiza a unidade federativa com base no campo idUnidadeFederativa
     const unidadeFederativa = await UnidadeFederativa.findOneAndUpdate(
-      { idUnidadeFederativa: idUnidadeFederativa }, // Busca pelo campo idUnidadeFederativa
+      { idUnidadeFederativa: idUnidadeFederativa },
       data,
-      { new: true } // Retorna a unidade federativa atualizada
+      { new: true }
     );
 
     if (!unidadeFederativa) {
@@ -103,8 +103,8 @@ export const deleteUnidadeFederativa = async (id) => {
       throw new Error("Unidade Federativa não encontrada para exclusão.");
     }
 
-    const unidadeFederativa = await UnidadeFederativa.findByIdAndDelete(id); // Removido .lean()
-    return unidadeFederativa;
+    const unidadeFederativa = await UnidadeFederativa.findByIdAndDelete(id);
+    return { message: "Unidade Federativa excluída com sucesso" };
   } catch (error) {
     handleError("deletar", error);
   }

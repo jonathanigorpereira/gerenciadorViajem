@@ -1,7 +1,7 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import AutoIncrement from "mongoose-sequence";
 
-const ViagemSchema = mongoose.Schema(
+const ViagemSchema = new mongoose.Schema(
   {
     idViagem: {
       type: Number,
@@ -24,11 +24,13 @@ const ViagemSchema = mongoose.Schema(
       required: true,
     },
   },
-  { collection: "viagem", timestamps: true }
+  {
+    timestamps: true,
+    collection: "viagem",
+  }
 );
 
 ViagemSchema.plugin(AutoIncrement(mongoose), { inc_field: "idViagem" });
 
 const Viagem = mongoose.model("viagem", ViagemSchema);
-
 export default Viagem;

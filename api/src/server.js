@@ -11,6 +11,7 @@ import empregadoRoutes from "./routes/empregadoRoute.js";
 import unidadeFederativaRoutes from "./routes/unidadeFederativaRoute.js";
 import municipioRoutes from "./routes/municipioRoute.js";
 import authRoutes from "./routes/authRoute.js";
+import viagemRoutes from "./routes/viagemRoute.js";
 import Empregado from "./models/Empregado.js";
 
 // Configuração do ambiente
@@ -45,11 +46,12 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      httpOnly: true,
-      secure: false, // Deve ser false em desenvolvimento (HTTP)
+      httpOnly: false,
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 dia
       sameSite: "lax",
     },
+    store: new session.MemoryStore(),
   })
 );
 
@@ -75,12 +77,12 @@ passport.use(
         if (!user) {
           // Se o usuário não existe, crie um novo registro
           user = new Empregado({
-            googleId: profile.id, // Armazena o googleId
+            googleId: profile.id,
             nomeEmpregado:
               profile.displayName ||
               `${profile.name.givenName} ${profile.name.familyName}`,
             email: profile.emails[0].value, // O email principal retornado pelo Google
-            idCargo: 1, // Defina um cargo padrão ou solicite que seja preenchido após o login
+            idCargo: 2, // cargo padrão
             ativo: true,
           });
 
@@ -101,7 +103,6 @@ passport.serializeUser((user, done) => done(null, user.id)); // Serializa o _id 
 // Deserializa o usuário da sessão
 passport.deserializeUser(async (id, done) => {
   try {
-    // Como o Mongoose não aceita mais callbacks, apenas await sem callback
     const user = await Empregado.findById(id); // Busca o usuário pelo _id do MongoDB
 
     if (user) {
@@ -120,6 +121,7 @@ app.use("/api/v1/empregado", empregadoRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/unidadeFederativa", unidadeFederativaRoutes);
 app.use("/api/v1/municipio", municipioRoutes);
+app.use("/api/v1/viagem", viagemRoutes);
 
 // Define a porta usando a variável de ambiente ou 3333
 const PORT = process.env.PORT || 3333;
