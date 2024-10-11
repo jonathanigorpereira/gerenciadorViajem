@@ -188,6 +188,19 @@ export const getViagemById = async (idViagem) => {
 
 // Método para exportar a viagem e destinos em PDF
 
+// Função para formatar valores em R$
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+};
+
+// Função para formatar datas no padrão brasileiro
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("pt-BR");
+};
+
 export const exportViagemToPdf = async (idViagem, res) => {
   try {
     const viagem = await getViagemById(idViagem);
@@ -272,16 +285,12 @@ export const exportViagemToPdf = async (idViagem, res) => {
       .fillColor("black")
       .fontSize(12)
       .text(
-        `Data de Partida: ${new Date(
-          viagem.DataInicioViagem
-        ).toLocaleDateString()}`,
+        `Data de Partida: ${formatDate(viagem.DataInicioViagem)}`,
         50,
         doc.y + 10
       )
       .text(
-        `Data de Chegada: ${new Date(
-          viagem.DataTerminoViagem
-        ).toLocaleDateString()}`,
+        `Data de Chegada: ${formatDate(viagem.DataTerminoViagem)}`,
         50,
         doc.y + 30
       )
@@ -309,9 +318,7 @@ export const exportViagemToPdf = async (idViagem, res) => {
           doc.y + 10
         )
         .text(
-          `Data de Chegada: ${new Date(
-            destino.DataDestinoViagem
-          ).toLocaleDateString()}`,
+          `Data de Chegada: ${formatDate(destino.DataDestinoViagem)}`,
           50,
           doc.y + 30
         )
@@ -329,9 +336,7 @@ export const exportViagemToPdf = async (idViagem, res) => {
             .fontSize(12)
             .fillColor("black")
             .text(`- Tipo de Custo: ${custo.idTipoCusto}`)
-            .text(
-              `- Valor: R$ ${parseFloat(custo.ValorCustoDestino).toFixed(2)}`
-            )
+            .text(`- Valor: ${formatCurrency(custo.ValorCustoDestino)}`)
             .moveDown(0.5);
         });
       }
