@@ -25,6 +25,11 @@ const MunicipioSchema = new mongoose.Schema(
   { collection: "municipio", timestamps: true }
 );
 
+MunicipioSchema.index(
+  { NomeMunicipio: 1, idUnidadeFederativa: 1 },
+  { unique: true }
+);
+
 MunicipioSchema.plugin(AutoIncrement(mongoose), { inc_field: "idMunicipio" });
 
 const Municipio = mongoose.model("municipio", MunicipioSchema);

@@ -2,6 +2,7 @@ import express from "express";
 import {
   criarViagem,
   buscarViagemPeloId,
+  buscarViagemPeloEmpregadoId,
   atualizarViagem,
   deletarViagem,
   exportarViagemToPdf,
@@ -79,7 +80,7 @@ const router = express.Router();
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/cadastrar", criarViagem);
+router.post("/cadastrar", verificarToken, criarViagem);
 
 /**
  * @openapi
@@ -103,7 +104,31 @@ router.post("/cadastrar", criarViagem);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/listar/:idViagem", buscarViagemPeloId);
+router.get("/listar/:idViagem", verificarToken, buscarViagemPeloId);
+
+/**
+ * @openapi
+ * /viagem/listar/{idEmpregado}:
+ *   get:
+ *     summary: Busca uma viagem pelo ID
+ *     tags:
+ *       - Viagem
+ *     parameters:
+ *       - name: idEmpregado
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: O ID único da viagem.
+ *     responses:
+ *       200:
+ *         description: Detalhes da viagem.
+ *       404:
+ *         description: Viagem não encontrada.
+ *       500:
+ *         description: Erro interno do servidor.
+ */
+router.get("/listar/:idEmpregado", verificarToken, buscarViagemPeloEmpregadoId);
 
 /**
  * @openapi
@@ -184,7 +209,7 @@ router.get("/listar/:idViagem", buscarViagemPeloId);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.put("/atualizar/:idViagem", atualizarViagem);
+router.put("/atualizar/:idViagem", verificarToken, atualizarViagem);
 
 /**
  * @openapi
@@ -210,7 +235,7 @@ router.put("/atualizar/:idViagem", atualizarViagem);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.delete("/excluir/:idViagem", deletarViagem);
+router.delete("/excluir/:idViagem", verificarToken, deletarViagem);
 
 /**
  * @openapi
@@ -236,6 +261,6 @@ router.delete("/excluir/:idViagem", deletarViagem);
  *       500:
  *         description: Erro ao gerar PDF.
  */
-router.get("/exportar-pdf/:idViagem", exportarViagemToPdf);
+router.get("/exportar-pdf/:idViagem", verificarToken, exportarViagemToPdf);
 
 export default router;

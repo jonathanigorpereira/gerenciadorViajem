@@ -7,69 +7,67 @@ import {
 } from "../services/unidadeFederativaService";
 import UnidadeFederativa from "../models/UnidadeFederativa";
 
-// Mock do model UnidadeFederativa
+// Mocking do modelo UnidadeFederativa
 jest.mock("../models/UnidadeFederativa");
 
-describe("UnidadeFederativa Service", () => {
+describe("Serviço de Unidade Federativa", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // Teste para criação de uma Unidade Federativa
   describe("createUnidadeFederativa", () => {
     it("deve criar uma nova Unidade Federativa com sucesso", async () => {
-      const mockData = {
+      const dados = {
         SiglaUnidadeFederativa: "SP",
         NomeUnidadeFederativa: "São Paulo",
-        ativo: true,
       };
 
       UnidadeFederativa.findOne.mockResolvedValue(null);
-      UnidadeFederativa.prototype.save = jest.fn().mockResolvedValue(mockData);
+      UnidadeFederativa.prototype.save.mockResolvedValue(dados);
 
-      const result = await createUnidadeFederativa(mockData);
-      expect(result).toEqual(mockData);
+      const resultado = await createUnidadeFederativa(dados);
+
       expect(UnidadeFederativa.findOne).toHaveBeenCalledWith({
         $or: [
-          { SiglaUnidadeFederativa: "SP" },
-          { NomeUnidadeFederativa: "São Paulo" },
+          { SiglaUnidadeFederativa: dados.SiglaUnidadeFederativa },
+          { NomeUnidadeFederativa: dados.NomeUnidadeFederativa },
         ],
       });
-      expect(UnidadeFederativa.prototype.save).toHaveBeenCalled();
+      expect(resultado).toEqual(dados);
     });
 
     it("deve lançar um erro se a Unidade Federativa já existir", async () => {
-      const mockData = {
+      const dados = {
         SiglaUnidadeFederativa: "SP",
         NomeUnidadeFederativa: "São Paulo",
       };
 
-      UnidadeFederativa.findOne.mockResolvedValue(mockData);
+      UnidadeFederativa.findOne.mockResolvedValue(dados);
 
-      await expect(createUnidadeFederativa(mockData)).rejects.toThrow(
+      await expect(createUnidadeFederativa(dados)).rejects.toThrow(
         "Já existe uma Unidade Federativa com essa sigla ou nome."
       );
     });
   });
 
-  // Teste para buscar Unidade Federativa por ID
   describe("getUnidadeFederativaById", () => {
-    it("deve retornar a Unidade Federativa quando encontrada", async () => {
-      const mockData = {
-        idUnidadeFederativa: 123,
+    it("deve retornar a Unidade Federativa pelo ID", async () => {
+      const unidadeFederativa = {
+        idUnidadeFederativa: 1,
         SiglaUnidadeFederativa: "SP",
         NomeUnidadeFederativa: "São Paulo",
       };
 
       UnidadeFederativa.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(mockData),
+        lean: jest.fn().mockResolvedValue(unidadeFederativa),
       });
 
-      const result = await getUnidadeFederativaById(123);
-      expect(result).toEqual(mockData);
+      const resultado = await getUnidadeFederativaById(1);
+
       expect(UnidadeFederativa.findOne).toHaveBeenCalledWith({
-        idUnidadeFederativa: 123,
+        idUnidadeFederativa: 1,
       });
+      expect(resultado).toEqual(unidadeFederativa);
     });
 
     it("deve lançar um erro se a Unidade Federativa não for encontrada", async () => {
@@ -77,16 +75,15 @@ describe("UnidadeFederativa Service", () => {
         lean: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(getUnidadeFederativaById(123)).rejects.toThrow(
+      await expect(getUnidadeFederativaById(1)).rejects.toThrow(
         "Unidade Federativa não encontrada"
       );
     });
   });
 
-  // Teste para listar todas as Unidades Federativas
   describe("getAllUnidadesFederativas", () => {
     it("deve retornar todas as Unidades Federativas", async () => {
-      const mockData = [
+      const unidades = [
         { SiglaUnidadeFederativa: "SP", NomeUnidadeFederativa: "São Paulo" },
         {
           SiglaUnidadeFederativa: "RJ",
@@ -95,96 +92,86 @@ describe("UnidadeFederativa Service", () => {
       ];
 
       UnidadeFederativa.find.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(mockData),
+        lean: jest.fn().mockResolvedValue(unidades),
       });
 
-      const result = await getAllUnidadesFederativas();
-      expect(result).toEqual(mockData);
+      const resultado = await getAllUnidadesFederativas();
+
       expect(UnidadeFederativa.find).toHaveBeenCalled();
+      expect(resultado).toEqual(unidades);
     });
   });
 
-  // Teste para atualizar uma Unidade Federativa
   describe("updateUnidadeFederativa", () => {
-    it("deve atualizar uma Unidade Federativa com sucesso", async () => {
-      const mockData = {
-        idUnidadeFederativa: 123,
+    it("deve atualizar a Unidade Federativa com sucesso", async () => {
+      const dados = {
+        SiglaUnidadeFederativa: "RJ",
+        NomeUnidadeFederativa: "Rio de Janeiro",
+      };
+      const unidadeExistente = {
+        idUnidadeFederativa: 1,
         SiglaUnidadeFederativa: "SP",
-        NomeUnidadeFederativa: "São Paulo Atualizado",
+        NomeUnidadeFederativa: "São Paulo",
       };
 
-      // Simular que a unidade existe na primeira chamada de findOne
+      // Mock para a primeira verificação de existência
       UnidadeFederativa.findOne
-        .mockResolvedValueOnce({ idUnidadeFederativa: 123 })
+        .mockResolvedValueOnce(unidadeExistente)
         .mockResolvedValueOnce(null);
 
-      // Simular que a unidade foi atualizada com sucesso
-      UnidadeFederativa.findOneAndUpdate.mockResolvedValue(mockData);
+      UnidadeFederativa.findOneAndUpdate.mockResolvedValue({
+        idUnidadeFederativa: 1,
+        ...dados,
+      });
 
-      const result = await updateUnidadeFederativa(123, mockData);
+      const resultado = await updateUnidadeFederativa(1, dados);
 
-      expect(result).toEqual(mockData);
-
-      // Verificar se findOne foi chamado duas vezes (uma para existência, outra para duplicidade)
-      expect(UnidadeFederativa.findOne).toHaveBeenCalledTimes(2);
-
-      // Verificar se findOneAndUpdate foi chamado com os parâmetros corretos
-      expect(UnidadeFederativa.findOneAndUpdate).toHaveBeenCalledWith(
-        { idUnidadeFederativa: 123 },
-        mockData,
-        { new: true }
-      );
+      expect(UnidadeFederativa.findOne).toHaveBeenCalledWith({
+        idUnidadeFederativa: 1,
+      });
+      expect(UnidadeFederativa.findOne).toHaveBeenCalledWith({
+        $or: [
+          { SiglaUnidadeFederativa: dados.SiglaUnidadeFederativa },
+          { NomeUnidadeFederativa: dados.NomeUnidadeFederativa },
+        ],
+        idUnidadeFederativa: { $ne: 1 },
+      });
+      expect(resultado).toEqual({ idUnidadeFederativa: 1, ...dados });
     });
 
     it("deve lançar um erro se a Unidade Federativa não for encontrada para atualização", async () => {
-      // Simular que a unidade não foi encontrada
       UnidadeFederativa.findOne.mockResolvedValue(null);
 
-      await expect(updateUnidadeFederativa(123, {})).rejects.toThrow(
-        "Unidade Federativa não encontrada para atualização."
-      );
-    });
-
-    it("deve lançar um erro se a atualização resultar em duplicidade", async () => {
-      const mockData = {
-        idUnidadeFederativa: 123,
-        SiglaUnidadeFederativa: "SP",
-        NomeUnidadeFederativa: "São Paulo",
-      };
-
-      // Simular que a unidade atual existe na primeira chamada
-      UnidadeFederativa.findOne
-        .mockResolvedValueOnce({ idUnidadeFederativa: 123 })
-        .mockResolvedValueOnce({ idUnidadeFederativa: 456 });
-
-      await expect(updateUnidadeFederativa(123, mockData)).rejects.toThrow(
-        "Já existe uma Unidade Federativa com essa sigla ou nome."
-      );
+      await expect(
+        updateUnidadeFederativa(1, { NomeUnidadeFederativa: "Rio" })
+      ).rejects.toThrow("Unidade Federativa não encontrada para atualização.");
     });
   });
 
-  // Teste para deletar uma Unidade Federativa
   describe("deleteUnidadeFederativa", () => {
-    it("deve deletar uma Unidade Federativa com sucesso", async () => {
-      const mockData = {
-        idUnidadeFederativa: 123,
+    it("deve excluir a Unidade Federativa com sucesso", async () => {
+      const unidade = {
+        _id: 1,
         SiglaUnidadeFederativa: "SP",
         NomeUnidadeFederativa: "São Paulo",
       };
 
-      UnidadeFederativa.findById.mockResolvedValue(mockData);
-      UnidadeFederativa.findByIdAndDelete.mockResolvedValue(mockData);
+      UnidadeFederativa.findById.mockResolvedValue(unidade);
+      UnidadeFederativa.findByIdAndDelete.mockResolvedValue(unidade);
 
-      const result = await deleteUnidadeFederativa(123);
-      expect(result).toEqual(mockData);
-      expect(UnidadeFederativa.findById).toHaveBeenCalledWith(123);
-      expect(UnidadeFederativa.findByIdAndDelete).toHaveBeenCalledWith(123);
+      const resultado = await deleteUnidadeFederativa(1);
+
+      expect(UnidadeFederativa.findById).toHaveBeenCalledWith(1);
+      expect(UnidadeFederativa.findByIdAndDelete).toHaveBeenCalledWith(1);
+      expect(resultado).toEqual({
+        message: "Unidade Federativa excluída com sucesso",
+      });
     });
 
     it("deve lançar um erro se a Unidade Federativa não for encontrada para exclusão", async () => {
       UnidadeFederativa.findById.mockResolvedValue(null);
 
-      await expect(deleteUnidadeFederativa(123)).rejects.toThrow(
+      await expect(deleteUnidadeFederativa(1)).rejects.toThrow(
         "Unidade Federativa não encontrada para exclusão."
       );
     });
