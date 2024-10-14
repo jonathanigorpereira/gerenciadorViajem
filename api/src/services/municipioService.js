@@ -1,9 +1,29 @@
+import axios from "axios";
 import Municipio from "../models/Municipio.js";
 import UnidadeFederativa from "../models/UnidadeFederativa.js";
 import {
   createMunicipioValidation,
   updateMunicipioValidation,
 } from "../validations/municipioValidation.js";
+
+// Função para verificar se o município pertence ao estado correto usando a API do IBGE
+export const verificarMunicipioPorEstado = async (nomeMunicipio, siglaUF) => {
+  try {
+    // Faz a requisição para obter os municípios do estado fornecido (siglaUF)
+    const response = await axios.get(
+      `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${siglaUF}/municipios`
+    );
+    const municipios = response.data;
+
+    // Verifica se o município existe na lista de municípios daquele estado
+    return municipios.some(
+      (municipio) =>
+        municipio.nome.toLowerCase() === nomeMunicipio.toLowerCase()
+    );
+  } catch (error) {
+    throw new Error("Erro ao validar município com a API do IBGE.");
+  }
+};
 
 // Criar um novo município
 export const createMunicipio = async (data) => {
@@ -16,10 +36,28 @@ export const createMunicipio = async (data) => {
 
     const { NomeMunicipio, idUnidadeFederativa } = data;
 
+    const unidadeFederativa = await UnidadeFederativa.findOne({
+      idUnidadeFederativa: idUnidadeFederativa,
+    });
+
+    if (!unidadeFederativa) {
+      throw new Error("Unidade Federativa não existe.");
+    }
+
     // Verifica se o NomeMunicipio já existe
     const municipioExistente = await Municipio.findOne({ NomeMunicipio });
     if (municipioExistente) {
       throw new Error("Municipio já cadastrado.");
+    }
+
+    const municipioValido = await verificarMunicipioPorEstado(
+      NomeMunicipio,
+      unidadeFederativa.SiglaUnidadeFederativa
+    );
+    if (!municipioValido) {
+      throw new Error(
+        `O município ${NomeMunicipio} não pertence ao estado ${unidadeFederativa.NomeUnidadeFederativa} - ${unidadeFederativa.SiglaUnidadeFederativa}.`
+      );
     }
 
     // Cria um novo registro de município

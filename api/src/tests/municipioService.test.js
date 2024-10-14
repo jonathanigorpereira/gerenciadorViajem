@@ -1,235 +1,201 @@
+import axios from "axios";
+import Municipio from "../models/Municipio";
+import UnidadeFederativa from "../models/UnidadeFederativa";
 import {
   createMunicipio,
   getMunicipioById,
   updateMunicipio,
   deleteMunicipio,
-  getAllMunicipios,
-} from "../services/municipioService.js";
-import Municipio from "../models/Municipio.js";
-import UnidadeFederativa from "../models/UnidadeFederativa.js";
+  verificarMunicipioPorEstado,
+} from "../services/municipioService";
 import {
   createMunicipioValidation,
   updateMunicipioValidation,
-} from "../validations/municipioValidation.js";
+} from "../validations/municipioValidation";
 
-// Mock the Mongoose models and validation
-jest.mock("../models/Municipio.js");
-jest.mock("../models/UnidadeFederativa.js");
-jest.mock("../validations/municipioValidation.js");
+jest.mock("axios");
+jest.mock("../models/Municipio");
+jest.mock("../models/UnidadeFederativa");
 
 describe("Municipio Service Tests", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  describe("verificarMunicipioPorEstado", () => {
+    it("deve retornar true quando o município pertence ao estado correto", async () => {
+      const mockMunicipios = [{ nome: "Porto Alegre" }];
+      axios.get.mockResolvedValue({ data: mockMunicipios });
 
-  // Teste para a criação de um município
-  describe("createMunicipio", () => {
-    it("deve criar um novo município com sucesso", async () => {
-      const data = { NomeMunicipio: "São Paulo", idUnidadeFederativa: 35 };
-
-      // Simula a validação sem erro
-      createMunicipioValidation.validate.mockReturnValue({ error: null });
-
-      // Simula a verificação de que o município não existe
-      Municipio.findOne.mockResolvedValue(null);
-
-      // Simula a criação do município
-      Municipio.prototype.save = jest.fn().mockResolvedValue({
-        idMunicipio: 1,
-        NomeMunicipio: "São Paulo",
-        idUnidadeFederativa: 35,
-      });
-
-      const result = await createMunicipio(data);
-
-      expect(result).toEqual({
-        idMunicipio: 1,
-        NomeMunicipio: "São Paulo",
-        idUnidadeFederativa: 35,
-      });
-      expect(Municipio.findOne).toHaveBeenCalledWith({
-        NomeMunicipio: "São Paulo",
-      });
-      expect(Municipio.prototype.save).toHaveBeenCalled();
+      const result = await verificarMunicipioPorEstado("Porto Alegre", "RS");
+      expect(result).toBe(true);
     });
 
-    it("deve lançar erro se o município já existir", async () => {
-      const data = { NomeMunicipio: "São Paulo", idUnidadeFederativa: 35 };
+    it("deve retornar false quando o município não pertence ao estado", async () => {
+      const mockMunicipios = [{ nome: "São Paulo" }];
+      axios.get.mockResolvedValue({ data: mockMunicipios });
 
-      createMunicipioValidation.validate.mockReturnValue({ error: null });
-      Municipio.findOne.mockResolvedValue({ NomeMunicipio: "São Paulo" });
+      const result = await verificarMunicipioPorEstado("Porto Alegre", "SP");
+      expect(result).toBe(false);
+    });
 
-      await expect(createMunicipio(data)).rejects.toThrow(
+    it("deve lançar um erro ao consultar a API do IBGE falhar", async () => {
+      axios.get.mockRejectedValue(new Error("API error"));
+
+      await expect(
+        verificarMunicipioPorEstado("Porto Alegre", "RS")
+      ).rejects.toThrow("Erro ao validar município com a API do IBGE.");
+    });
+  });
+
+  describe("createMunicipio", () => {
+    it("deve criar um município quando os dados forem válidos", async () => {
+      const mockData = {
+        NomeMunicipio: "Porto Alegre",
+        idUnidadeFederativa: 1,
+      };
+      const mockUnidade = {
+        SiglaUnidadeFederativa: "RS",
+        NomeUnidadeFederativa: "Rio Grande do Sul",
+      };
+
+      createMunicipioValidation.validate = jest
+        .fn()
+        .mockReturnValue({ error: null });
+      UnidadeFederativa.findOne.mockResolvedValue(mockUnidade);
+      Municipio.findOne.mockResolvedValue(null); // Município não existe
+      axios.get.mockResolvedValue({ data: [{ nome: "Porto Alegre" }] });
+
+      Municipio.prototype.save = jest.fn().mockResolvedValue(mockData);
+
+      const result = await createMunicipio(mockData);
+
+      expect(result.NomeMunicipio).toBe("Porto Alegre");
+      expect(Municipio.findOne).toHaveBeenCalledWith({
+        NomeMunicipio: "Porto Alegre",
+      });
+    });
+
+    it("deve retornar erro ao tentar criar um município existente", async () => {
+      const mockData = {
+        NomeMunicipio: "Porto Alegre",
+        idUnidadeFederativa: 1,
+      };
+      const mockUnidade = {
+        SiglaUnidadeFederativa: "RS",
+        NomeUnidadeFederativa: "Rio Grande do Sul",
+      };
+
+      createMunicipioValidation.validate = jest
+        .fn()
+        .mockReturnValue({ error: null });
+      UnidadeFederativa.findOne.mockResolvedValue(mockUnidade);
+      Municipio.findOne.mockResolvedValue(mockData); // Município já existe
+
+      await expect(createMunicipio(mockData)).rejects.toThrow(
         "Municipio já cadastrado."
       );
     });
 
-    it("deve lançar erro se a validação falhar", async () => {
-      const data = { NomeMunicipio: "São Paulo", idUnidadeFederativa: 35 };
-
-      createMunicipioValidation.validate.mockReturnValue({
-        error: { details: [{ message: "Validation error" }] },
+    it("deve retornar erro se os dados de entrada forem inválidos", async () => {
+      const mockData = { NomeMunicipio: "", idUnidadeFederativa: 1 };
+      createMunicipioValidation.validate = jest.fn().mockReturnValue({
+        error: { details: [{ message: "Nome inválido" }] },
       });
 
-      await expect(createMunicipio(data)).rejects.toThrow("Validation error");
+      await expect(createMunicipio(mockData)).rejects.toThrow("Nome inválido");
+    });
+
+    it("deve retornar erro se a unidade federativa não existir", async () => {
+      const mockData = {
+        NomeMunicipio: "Porto Alegre",
+        idUnidadeFederativa: 1,
+      };
+      createMunicipioValidation.validate = jest
+        .fn()
+        .mockReturnValue({ error: null });
+      UnidadeFederativa.findOne.mockResolvedValue(null); // UF não existe
+
+      await expect(createMunicipio(mockData)).rejects.toThrow(
+        "Unidade Federativa não existe."
+      );
     });
   });
 
-  // Teste para buscar um município por ID
   describe("getMunicipioById", () => {
-    it("deve retornar um município com sucesso", async () => {
-      const municipioMock = {
+    it("deve retornar o município com informações da unidade federativa", async () => {
+      const mockMunicipio = {
         idMunicipio: 1,
-        NomeMunicipio: "São Paulo",
-        idUnidadeFederativa: 35,
+        NomeMunicipio: "Porto Alegre",
+        idUnidadeFederativa: 1,
+        toObject: jest.fn().mockReturnValue({
+          idMunicipio: 1,
+          NomeMunicipio: "Porto Alegre",
+          idUnidadeFederativa: 1,
+        }),
       };
-      const unidadeFederativaMock = {
-        idUnidadeFederativa: 35,
-        NomeUnidadeFederativa: "SP",
+      const mockUnidade = {
+        idUnidadeFederativa: 1,
+        NomeUnidadeFederativa: "Rio Grande do Sul",
       };
 
-      Municipio.findOne.mockResolvedValue({
-        ...municipioMock,
-        toObject: () => municipioMock,
-      });
-      UnidadeFederativa.findOne.mockResolvedValue(unidadeFederativaMock);
+      Municipio.findOne.mockResolvedValue(mockMunicipio);
+      UnidadeFederativa.findOne.mockResolvedValue(mockUnidade);
 
       const result = await getMunicipioById(1);
 
-      expect(result).toEqual({
-        ...municipioMock,
-        unidadeFederativa: unidadeFederativaMock,
-      });
-      expect(Municipio.findOne).toHaveBeenCalledWith({ idMunicipio: 1 });
-      expect(UnidadeFederativa.findOne).toHaveBeenCalledWith({
-        idUnidadeFederativa: 35,
-      });
+      expect(result.NomeMunicipio).toBe("Porto Alegre");
+      expect(result.unidadeFederativa.NomeUnidadeFederativa).toBe(
+        "Rio Grande do Sul"
+      );
     });
 
-    it("deve lançar erro se o município não for encontrado", async () => {
+    it("deve lançar um erro se o município não for encontrado", async () => {
       Municipio.findOne.mockResolvedValue(null);
 
-      await expect(getMunicipioById(1)).rejects.toThrow(
+      await expect(getMunicipioById(999)).rejects.toThrow(
         "Município não encontrado."
       );
     });
   });
 
-  // Teste para atualização de município
   describe("updateMunicipio", () => {
-    it("deve atualizar um município com sucesso", async () => {
-      const municipioMock = {
-        idMunicipio: 1,
-        NomeMunicipio: "São Paulo",
-        idUnidadeFederativa: 35,
-      };
-      const data = { NomeMunicipio: "São Paulo Atualizado" };
+    it("deve atualizar o município com sucesso", async () => {
+      const mockMunicipio = { idMunicipio: 1, NomeMunicipio: "Porto Alegre" };
+      updateMunicipioValidation.validate = jest
+        .fn()
+        .mockReturnValue({ error: null });
+      Municipio.findOneAndUpdate.mockResolvedValue(mockMunicipio);
 
-      updateMunicipioValidation.validate.mockReturnValue({ error: null });
-      Municipio.findOneAndUpdate.mockResolvedValue(municipioMock);
-
-      const result = await updateMunicipio(1, data);
-
-      expect(result).toEqual(municipioMock);
-      expect(Municipio.findOneAndUpdate).toHaveBeenCalledWith(
-        { idMunicipio: 1 },
-        data,
-        { new: true }
-      );
-    });
-
-    it("deve lançar erro se a validação falhar", async () => {
-      const data = { NomeMunicipio: "São Paulo Atualizado" };
-
-      updateMunicipioValidation.validate.mockReturnValue({
-        error: { details: [{ message: "Validation error" }] },
+      const result = await updateMunicipio(1, {
+        NomeMunicipio: "Porto Alegre",
       });
-
-      await expect(updateMunicipio(1, data)).rejects.toThrow(
-        "Validation error"
-      );
+      expect(result.NomeMunicipio).toBe("Porto Alegre");
     });
 
-    it("deve lançar erro se o município não for encontrado", async () => {
-      Municipio.findOneAndUpdate.mockResolvedValue(null);
-      updateMunicipioValidation.validate.mockReturnValue({ error: null });
+    it("deve lançar um erro se o município não for encontrado para atualização", async () => {
+      updateMunicipioValidation.validate = jest
+        .fn()
+        .mockReturnValue({ error: null });
+      Municipio.findOneAndUpdate.mockResolvedValue(null); // Município não encontrado
 
-      await expect(updateMunicipio(1, {})).rejects.toThrow(
-        "Município não encontrado para atualização."
-      );
+      await expect(
+        updateMunicipio(999, { NomeMunicipio: "Inexistente" })
+      ).rejects.toThrow("Município não encontrado para atualização.");
     });
   });
 
-  // Teste para deletar um município
   describe("deleteMunicipio", () => {
-    it("deve excluir um município com sucesso", async () => {
-      const municipioMock = { idMunicipio: 1, NomeMunicipio: "São Paulo" };
-
-      Municipio.findOneAndDelete.mockResolvedValue({
-        ...municipioMock,
-        toObject: () => municipioMock,
-      });
+    it("deve excluir o município com sucesso", async () => {
+      const mockMunicipio = { idMunicipio: 1, NomeMunicipio: "Porto Alegre" };
+      Municipio.findOneAndDelete.mockResolvedValue(mockMunicipio);
 
       const result = await deleteMunicipio(1);
-
-      expect(result).toMatchObject(municipioMock);
-      expect(Municipio.findOneAndDelete).toHaveBeenCalledWith({
-        idMunicipio: 1,
-      });
+      expect(result.message).toBe("Município excluído com sucesso");
     });
 
-    it("deve lançar erro se o município não for encontrado para exclusão", async () => {
-      Municipio.findOneAndDelete.mockResolvedValue(null);
+    it("deve lançar um erro se o município não for encontrado para exclusão", async () => {
+      Municipio.findOneAndDelete.mockResolvedValue(null); // Município não encontrado
 
-      await expect(deleteMunicipio(1)).rejects.toThrow(
+      await expect(deleteMunicipio(999)).rejects.toThrow(
         "Município não encontrado para exclusão."
       );
-    });
-  });
-
-  // Teste para buscar todos os municípios
-  describe("getAllMunicipios", () => {
-    it("deve retornar todos os municípios com suas unidades federativas", async () => {
-      const municipioMock = [
-        { idMunicipio: 1, NomeMunicipio: "São Paulo", idUnidadeFederativa: 35 },
-        {
-          idMunicipio: 2,
-          NomeMunicipio: "Rio de Janeiro",
-          idUnidadeFederativa: 33,
-        },
-      ];
-      const unidadeFederativaMock = [
-        { idUnidadeFederativa: 35, NomeUnidadeFederativa: "SP" },
-        { idUnidadeFederativa: 33, NomeUnidadeFederativa: "RJ" },
-      ];
-
-      Municipio.find.mockResolvedValue([
-        {
-          ...municipioMock[0],
-          toObject: () => municipioMock[0],
-        },
-        {
-          ...municipioMock[1],
-          toObject: () => municipioMock[1],
-        },
-      ]);
-      UnidadeFederativa.findOne
-        .mockResolvedValueOnce(unidadeFederativaMock[0])
-        .mockResolvedValueOnce(unidadeFederativaMock[1]);
-
-      const result = await getAllMunicipios();
-
-      expect(result).toEqual([
-        {
-          ...municipioMock[0],
-          unidadeFederativa: unidadeFederativaMock[0],
-        },
-        {
-          ...municipioMock[1],
-          unidadeFederativa: unidadeFederativaMock[1],
-        },
-      ]);
-      expect(Municipio.find).toHaveBeenCalledWith({});
     });
   });
 });

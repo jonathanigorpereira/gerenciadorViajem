@@ -15,6 +15,10 @@ const ViagemSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    idStatusViagem: {
+      type: Number,
+      require: true,
+    },
     DataInicioViagem: {
       type: Date,
       required: true,
