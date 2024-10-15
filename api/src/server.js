@@ -116,12 +116,12 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Usando as rotas
-app.use("/api/v1/cargo", cargoRoutes);
-app.use("/api/v1/empregado", empregadoRoutes);
+app.use("/api/v1/cargos", cargoRoutes);
+app.use("/api/v1/empregados", empregadoRoutes);
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/unidadeFederativa", unidadeFederativaRoutes);
-app.use("/api/v1/municipio", municipioRoutes);
-app.use("/api/v1/viagem", viagemRoutes);
+app.use("/api/v1/unidades-federativas", unidadeFederativaRoutes);
+app.use("/api/v1/municipios", municipioRoutes);
+app.use("/api/v1/viagens", viagemRoutes);
 
 // Define a porta usando a variável de ambiente ou 3333
 const PORT = process.env.PORT || 3333;

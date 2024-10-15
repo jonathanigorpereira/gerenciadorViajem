@@ -97,6 +97,39 @@ export const getMunicipioById = async (idMunicipio) => {
   }
 };
 
+export const getMunicipiosByUF = async (idUnidadeFederativa) => {
+  try {
+    // Busca todos os municípios pela unidade federativa
+    const municipios = await Municipio.find({ idUnidadeFederativa });
+    if (!municipios || municipios.length === 0) {
+      throw new Error(
+        "Nenhum município encontrado para a unidade federativa informada."
+      );
+    }
+
+    // Busca a unidade federativa pelo idUnidadeFederativa
+    const unidadeFederativa = await UnidadeFederativa.findOne({
+      idUnidadeFederativa,
+    });
+    if (!unidadeFederativa) {
+      throw new Error("Unidade Federativa não encontrada.");
+    }
+
+    // Adiciona os dados da unidade federativa a cada município
+    return municipios.map((municipio) => {
+      const { NomeMunicipio, idMunicipio } = municipio.toObject();
+      const { SiglaUnidadeFederativa, NomeUnidadeFederativa } =
+        unidadeFederativa;
+      return {
+        NomeMunicipio,
+        idMunicipio,
+      };
+    });
+  } catch (error) {
+    throw new Error(`Erro ao buscar municípios: ${error.message}`);
+  }
+};
+
 // Atualizar um município por ID
 export const updateMunicipio = async (idMunicipio, data) => {
   try {

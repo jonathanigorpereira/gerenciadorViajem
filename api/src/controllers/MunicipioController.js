@@ -4,6 +4,7 @@ import {
   updateMunicipio,
   deleteMunicipio,
   getAllMunicipios,
+  getMunicipiosByUF,
 } from "../services/municipioService.js";
 
 // Função para buscar todos os municípios
@@ -22,6 +23,16 @@ export const buscarMunicipioPeloId = async (req, res) => {
     const { idMunicipio } = req.params;
     const municipio = await getMunicipioById(idMunicipio);
     return res.status(200).json(municipio);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const buscarMunicipioPeloIdUnidadeFederativa = async (req, res) => {
+  try {
+    const { idUnidadeFederativa } = req.params;
+    const municipios = await getMunicipiosByUF(idUnidadeFederativa);
+    return res.status(200).json(municipios);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

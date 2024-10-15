@@ -3,6 +3,7 @@ import {
   atualizarMunicipio,
   deletarMunicipio,
   buscarMunicipioPeloId,
+  buscarMunicipioPeloIdUnidadeFederativa,
   buscarTodosMunicipios,
   cirarMunicipio,
 } from "../controllers/MunicipioController.js";
@@ -89,6 +90,33 @@ router.get("/", verificarToken, buscarTodosMunicipios);
  *         description: Erro interno do servidor.
  */
 router.get("/:idMunicipio", verificarToken, buscarMunicipioPeloId);
+
+/**
+ * @openapi
+ * /municipios/unidade-federativa/{idUnidadeFederativa}:
+ *   get:
+ *     summary: Busca um Município pelo ID
+ *     tags:
+ *       - Município
+ *     parameters:
+ *       - name: idUnidadeFederativa
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: O ID único da unidade federativa.
+ *     responses:
+ *       200:
+ *         description: Detalhes do município.
+ *       404:
+ *         description: Município não encontrado.
+ *       500:
+ *         description: Erro interno do servidor.
+ */
+router.get(
+  "/unidade-federativa/:idUnidadeFederativa",
+  buscarMunicipioPeloIdUnidadeFederativa
+);
 
 /**
  * @openapi

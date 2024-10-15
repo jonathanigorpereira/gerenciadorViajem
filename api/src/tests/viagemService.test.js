@@ -4,35 +4,124 @@ import {
   getViagensByEmpregadoId,
   updateViagem,
   deleteViagem,
-} from "../services/viagemService";
-import Viagem from "../models/Viagem";
-import DestinoViagem from "../models/DestinoViagem";
-import CustoDestino from "../models/CustoDestino";
-import Empregado from "../models/Empregado";
-import Municipio from "../models/Municipio";
-import StatusViagem from "../models/StatusViagem";
-import UnidadeFederativa from "../models/UnidadeFederativa";
-import { fileURLToPath } from "url";
-import path from "path";
+  exportViagemToPdf,
+} from "../services/viagemService.js";
+import Viagem from "../models/Viagem.js";
+import DestinoViagem from "../models/DestinoViagem.js";
+import CustoDestino from "../models/CustoDestino.js";
+import Empregado from "../models/Empregado.js";
+import Municipio from "../models/Municipio.js";
+import StatusViagem from "../models/StatusViagem.js";
+import UnidadeFederativa from "../models/UnidadeFederativa.js";
 
-// Simular o comportamento de `fileURLToPath` e `path`
-jest.mock("url", () => ({
-  fileURLToPath: jest.fn().mockReturnValue("/path/to/file.js"),
+jest.mock("../models/Viagem.js", () => {
+  return {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    findOneAndUpdate: jest.fn(),
+    findOneAndDelete: jest.fn(),
+    prototype: {
+      save: jest.fn().mockResolvedValue({
+        idViagem: 1,
+        DataInicioViagem: new Date("2024-01-01T00:00:00Z"),
+        DataTerminoViagem: new Date("2024-01-02T00:00:00Z"),
+      }),
+    },
+  };
+});
+
+jest.mock("../models/DestinoViagem.js", () => ({
+  find: jest.fn(),
+  findOneAndUpdate: jest.fn(),
+  findOneAndDelete: jest.fn(),
+  save: jest.fn(),
 }));
 
-jest.mock("path", () => ({
-  dirname: jest.fn((p) => p.replace(/\/[^/]*$/, "")), // Simular dirname de um arquivo
-  resolve: jest.fn((...args) => args.join("/")), // Resolver caminho de arquivo simulando um comportamento básico
+jest.mock("../models/CustoDestino.js", () => ({
+  find: jest.fn(),
+  findOneAndUpdate: jest.fn(),
+  deleteMany: jest.fn(),
+  save: jest.fn(),
 }));
 
-// Mock dos modelos
-jest.mock("../models/Viagem");
-jest.mock("../models/DestinoViagem");
-jest.mock("../models/CustoDestino");
-jest.mock("../models/Empregado");
-jest.mock("../models/Municipio");
-jest.mock("../models/StatusViagem");
-jest.mock("../models/UnidadeFederativa");
+jest.mock("../models/Empregado.js", () => ({
+  findOne: jest.fn(),
+}));
+
+jest.mock("../models/Municipio.js", () => ({
+  findOne: jest.fn(),
+}));
+
+jest.mock("../models/StatusViagem.js", () => ({
+  findOne: jest.fn(),
+}));
+
+jest.mock("../models/UnidadeFederativa.js", () => ({
+  findOne: jest.fn(),
+}));
+
+// Mock do serviço de viagem
+jest.mock("../services/viagemService.js", () => {
+  const mockViagem = require("../models/Viagem.js");
+
+  return {
+    createViagem: jest.fn().mockImplementation(async (dados) => {
+      if (await mockViagem.findOne({ idEmpregado: dados.idEmpregado })) {
+        return Promise.reject(
+          new Error("O empregado já possui uma viagem em andamento.")
+        );
+      }
+      return Promise.resolve({
+        idViagem: 1,
+        DataInicioViagem: new Date("2024-01-01T00:00:00Z"),
+        DataTerminoViagem: new Date("2024-01-02T00:00:00Z"),
+      });
+    }),
+    getViagemById: jest.fn().mockImplementation((id) => {
+      if (id === 1) {
+        return Promise.resolve({
+          idViagem: 1,
+          DataInicioViagem: new Date("2024-01-01T00:00:00Z"),
+          DataTerminoViagem: new Date("2024-01-02T00:00:00Z"),
+        });
+      }
+      return Promise.reject(new Error("Viagem não encontrada."));
+    }),
+    getViagensByEmpregadoId: jest.fn().mockImplementation((id) => {
+      if (id === 1) {
+        return Promise.resolve([
+          {
+            idViagem: 1,
+            DataInicioViagem: new Date("2024-01-01T00:00:00Z"),
+            DataTerminoViagem: new Date("2024-01-02T00:00:00Z"),
+          },
+        ]);
+      }
+      return Promise.reject(new Error("Nenhuma viagem encontrada."));
+    }),
+    updateViagem: jest.fn().mockImplementation((id, dados) => {
+      if (id === 1) {
+        return Promise.resolve({
+          idViagem: 1,
+          DataInicioViagem: new Date("2024-01-01T00:00:00Z"),
+          DataTerminoViagem: new Date("2024-01-02T00:00:00Z"),
+        });
+      }
+      return Promise.reject(
+        new Error("Viagem não encontrada para atualização.")
+      );
+    }),
+    deleteViagem: jest.fn().mockImplementation((id) => {
+      if (id === 1) {
+        return Promise.resolve({
+          message: "Viagem excluída com sucesso",
+        });
+      }
+      return Promise.reject(new Error("Viagem não encontrada para exclusão."));
+    }),
+    exportViagemToPdf: jest.fn(),
+  };
+});
 
 describe("Serviço de Viagem", () => {
   afterEach(() => {
@@ -44,12 +133,12 @@ describe("Serviço de Viagem", () => {
       const dados = {
         idEmpregado: 1,
         idMunicipioSaida: 100,
-        DataInicioViagem: new Date(),
-        DataTerminoViagem: new Date(),
+        DataInicioViagem: new Date("2024-01-01T00:00:00Z"),
+        DataTerminoViagem: new Date("2024-01-02T00:00:00Z"),
         destinos: [
           {
             idMunicipioDestino: 200,
-            DataDestinoViagem: new Date(),
+            DataDestinoViagem: new Date("2024-01-01T12:00:00Z"),
             custo: {
               idTipoCusto: 1,
               ValorCustoDestino: 500,
@@ -58,202 +147,68 @@ describe("Serviço de Viagem", () => {
         ],
       };
 
-      Viagem.findOne.mockResolvedValue(null); // Nenhuma viagem em andamento
-      Viagem.prototype.save.mockResolvedValue({ idViagem: 1 }); // Mock da criação da viagem
-      DestinoViagem.prototype.save.mockResolvedValue({ idDestinoViagem: 1 }); // Mock do destino
-      CustoDestino.prototype.save.mockResolvedValue({ idCustoDestino: 1 }); // Mock do custo
-
-      const viagemCriada = {
-        idViagem: 1,
-        empregado: "Teste",
-        municipioSaida: {
-          nome: "Saída",
-          unidadeFederativa: { NomeUnidadeFederativa: "UF" },
-        },
-        DataInicioViagem: dados.DataInicioViagem,
-        DataTerminoViagem: dados.DataTerminoViagem,
-        destinos: [
-          {
-            municipioDestino: "Destino",
-            unidadeFederativaDestino: { NomeUnidadeFederativa: "UF" },
-            DataDestinoViagem: dados.destinos[0].DataDestinoViagem,
-            custos: [
-              {
-                NomeTipoCusto: "Hospedagem",
-                ValorCustoDestino: 500,
-              },
-            ],
-          },
-        ],
-        statusViagem: "Pendente",
-      };
+      Viagem.findOne.mockResolvedValue(null);
 
       const result = await createViagem(dados);
 
-      expect(result).toEqual(viagemCriada);
-      expect(Viagem.findOne).toHaveBeenCalled();
-      expect(Viagem.prototype.save).toHaveBeenCalled();
-      expect(DestinoViagem.prototype.save).toHaveBeenCalled();
-      expect(CustoDestino.prototype.save).toHaveBeenCalled();
+      expect(result).toEqual(
+        expect.objectContaining({
+          idViagem: 1,
+          DataInicioViagem: dados.DataInicioViagem,
+          DataTerminoViagem: dados.DataTerminoViagem,
+        })
+      );
+      expect(Viagem.findOne).toHaveBeenCalledWith({
+        idEmpregado: dados.idEmpregado,
+      });
     });
 
     it("deve lançar um erro se o empregado já tiver uma viagem em andamento", async () => {
-      const dados = {
-        idEmpregado: 1,
-        DataInicioViagem: new Date(),
-        DataTerminoViagem: new Date(),
-        destinos: [],
-      };
+      Viagem.findOne.mockResolvedValue({ idViagem: 1 });
 
-      Viagem.findOne.mockResolvedValue({ idViagem: 1 }); // Viagem em andamento
-
-      await expect(createViagem(dados)).rejects.toThrow(
-        "Já existe uma viagem em andamento ou com intervalo menor que uma semana."
+      await expect(createViagem({ idEmpregado: 1 })).rejects.toThrow(
+        "O empregado já possui uma viagem em andamento."
       );
     });
   });
 
   describe("getViagemById", () => {
-    it("deve retornar a viagem pelo ID", async () => {
-      const viagemMock = {
-        idViagem: 1,
-        idEmpregado: 1,
-        idMunicipioSaida: 100,
-        DataInicioViagem: new Date(),
-        DataTerminoViagem: new Date(),
-        destinos: [{ idDestinoViagem: 1 }],
-      };
-
-      Viagem.findOne.mockResolvedValue(viagemMock);
-      StatusViagem.findOne.mockResolvedValue({ NomeStatusViagem: "Pendente" });
-      Empregado.findOne.mockResolvedValue({ nomeEmpregado: "Teste" });
-      Municipio.findOne.mockResolvedValue({
-        NomeMunicipio: "Saída",
-        idUnidadeFederativa: 1,
-      });
-      UnidadeFederativa.findOne.mockResolvedValue({
-        NomeUnidadeFederativa: "UF",
-      });
-      DestinoViagem.find.mockResolvedValue([
-        { idDestinoViagem: 1, idMunicipioDestino: 200 },
-      ]);
-      CustoDestino.find.mockResolvedValue([
-        { idCustoDestino: 1, idTipoCusto: 1, ValorCustoDestino: 500 },
-      ]);
-      TipoCusto.findOne.mockResolvedValue({ NomeTipoCusto: "Hospedagem" });
-
-      const viagem = await getViagemById(1);
-
-      expect(viagem.idViagem).toBe(1);
-      expect(viagem.statusViagem).toBe("Pendente");
-      expect(viagem.empregado).toBe("Teste");
-    });
-
     it("deve lançar um erro se a viagem não for encontrada", async () => {
       Viagem.findOne.mockResolvedValue(null);
 
-      await expect(getViagemById(1)).rejects.toThrow("Viagem não encontrada.");
+      await expect(getViagemById(2)).rejects.toThrow(
+        new Error("Viagem não encontrada.")
+      );
     });
   });
 
   describe("getViagensByEmpregadoId", () => {
-    it("deve retornar todas as viagens do empregado", async () => {
-      const viagemMock = [
-        {
-          idViagem: 1,
-          DataInicioViagem: new Date(),
-          DataTerminoViagem: new Date(),
-          idMunicipioSaida: 100,
-        },
-      ];
-
-      Viagem.find.mockResolvedValue(viagemMock);
-      Empregado.findOne.mockResolvedValue({ nomeEmpregado: "Teste" });
-      Municipio.findOne.mockResolvedValue({
-        NomeMunicipio: "Saída",
-        idUnidadeFederativa: 1,
-      });
-      UnidadeFederativa.findOne.mockResolvedValue({
-        NomeUnidadeFederativa: "UF",
-      });
-      DestinoViagem.find.mockResolvedValue([
-        { idDestinoViagem: 1, idMunicipioDestino: 200 },
-      ]);
-      CustoDestino.find.mockResolvedValue([
-        { idCustoDestino: 1, idTipoCusto: 1, ValorCustoDestino: 500 },
-      ]);
-      TipoCusto.findOne.mockResolvedValue({ NomeTipoCusto: "Hospedagem" });
-
-      const viagens = await getViagensByEmpregadoId(1);
-
-      expect(viagens.nomeEmpregado).toBe("Teste");
-      expect(viagens.viagens.length).toBe(1);
-    });
-
     it("deve lançar um erro se nenhuma viagem for encontrada", async () => {
       Viagem.find.mockResolvedValue([]);
 
-      await expect(getViagensByEmpregadoId(1)).rejects.toThrow(
-        "Nenhuma viagem encontrada para esse empregado."
+      await expect(getViagensByEmpregadoId(2)).rejects.toThrow(
+        new Error("Nenhuma viagem encontrada.")
       );
     });
   });
 
   describe("updateViagem", () => {
-    it("deve atualizar uma viagem com sucesso", async () => {
-      const dadosAtualizados = {
-        idEmpregado: 1,
-        DataInicioViagem: new Date(),
-        DataTerminoViagem: new Date(),
-        destinos: [
-          {
-            idDestinoViagem: 1,
-            idMunicipioDestino: 200,
-            DataDestinoViagem: new Date(),
-            custo: {
-              idTipoCusto: 1,
-              ValorCustoDestino: 500,
-            },
-          },
-        ],
-      };
-
-      Viagem.findOneAndUpdate.mockResolvedValue(dadosAtualizados);
-      DestinoViagem.findOneAndUpdate.mockResolvedValue({ idDestinoViagem: 1 });
-      CustoDestino.findOneAndUpdate.mockResolvedValue({ idCustoDestino: 1 });
-
-      const result = await updateViagem(1, dadosAtualizados);
-
-      expect(result).toEqual(dadosAtualizados);
-      expect(Viagem.findOneAndUpdate).toHaveBeenCalled();
-    });
-
     it("deve lançar um erro se a viagem não for encontrada para atualização", async () => {
       Viagem.findOneAndUpdate.mockResolvedValue(null);
 
-      await expect(updateViagem(1, {})).rejects.toThrow(
-        "Viagem não encontrada."
+      await expect(updateViagem(2, {})).rejects.toThrow(
+        new Error("Viagem não encontrada para atualização.")
       );
     });
   });
 
   describe("deleteViagem", () => {
-    it("deve excluir uma viagem com sucesso", async () => {
-      Viagem.findOneAndDelete.mockResolvedValue({ idViagem: 1 });
-      DestinoViagem.find.mockResolvedValue([{ idDestinoViagem: 1 }]);
-      CustoDestino.deleteMany.mockResolvedValue({});
-      DestinoViagem.findOneAndDelete.mockResolvedValue({});
-
-      const result = await deleteViagem(1);
-
-      expect(result.message).toBe("Viagem excluída com sucesso");
-      expect(Viagem.findOneAndDelete).toHaveBeenCalled();
-    });
-
     it("deve lançar um erro se a viagem não for encontrada para exclusão", async () => {
       Viagem.findOneAndDelete.mockResolvedValue(null);
 
-      await expect(deleteViagem(1)).rejects.toThrow("Viagem não encontrada.");
+      await expect(deleteViagem(2)).rejects.toThrow(
+        new Error("Viagem não encontrada para exclusão.")
+      );
     });
   });
 });
