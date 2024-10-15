@@ -1,6 +1,7 @@
 import {
   createViagem,
   getViagemById,
+  getViagensByEmpregadoId,
   updateViagem,
   deleteViagem,
   exportViagemToPdf,
@@ -22,6 +23,15 @@ export const criarViagem = async (req, res) => {
 export const buscarViagemPeloId = async (req, res) => {
   try {
     const viagem = await getViagemById(req.params.idViagem);
+    return res.status(200).json(viagem);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const buscarViagemPeloEmpregadoId = async (req, res) => {
+  try {
+    const viagem = await getViagemById(req.params.idEmpregado);
     return res.status(200).json(viagem);
   } catch (error) {
     return res.status(500).json({ message: error.message });

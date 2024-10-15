@@ -14,6 +14,7 @@ export const verificarCargo = async (idCargo) => {
 // Função para criar um novo empregado
 export const criarEmpregado = async (dadosEmpregado) => {
   const novoEmpregado = new Empregado(dadosEmpregado);
+
   novoEmpregado.senha = await hashPassword(dadosEmpregado.senha);
 
   await novoEmpregado.save();

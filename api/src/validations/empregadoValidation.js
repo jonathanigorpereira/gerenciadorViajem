@@ -12,11 +12,22 @@ export const empregadoSchema = Joi.object({
     "string.email": "O e-mail informado deve ser um e-mail válido.",
     "any.required": "O e-mail do empregado é obrigatório.",
   }),
-  senha: Joi.string().max(100).messages({
-    "string.base": "A senha deve ser do tipo texto.",
-    "string.max": "A senha deve ter no máximo 100 caracteres.",
-    "any.required": "A senha do empregado é obrigatória.",
-  }),
+  senha: Joi.string()
+    .min(8)
+    .max(100)
+    .required()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,100}$"
+      )
+    )
+    .messages({
+      "string.pattern.base":
+        "A senha deve ter entre 8 e 100 caracteres, incluir pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
+      "string.empty": "O campo de senha é obrigatório.",
+      "string.min": "A senha deve ter no mínimo 8 caracteres.",
+      "string.max": "A senha não pode exceder 100 caracteres.",
+    }),
   idCargo: Joi.number().required().messages({
     "number.base": "O campo idCargo deve ser numérico.",
     "any.required": "O idCargo é obrigatório.",
