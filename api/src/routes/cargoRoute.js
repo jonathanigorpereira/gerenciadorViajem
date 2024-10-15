@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /cargo/cadastrar:
+ * /cargos:
  *   post:
  *     summary: Registra um novo cargo
  *     tags:
@@ -43,11 +43,11 @@ const router = express.Router();
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/cadastrar", verificarToken, cadastrarCargo); // Agora o controlador controla o acesso
+router.post("/", verificarToken, cadastrarCargo); // Agora o controlador controla o acesso
 
 /**
  * @openapi
- * /cargo/listar:
+ * /cargos:
  *   get:
  *     summary: Lista todos os cargos
  *     tags:
@@ -60,11 +60,11 @@ router.post("/cadastrar", verificarToken, cadastrarCargo); // Agora o controlado
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/listar", verificarToken, listarTodosCargos); // Qualquer usuário autenticado pode listar
+router.get("/", verificarToken, listarTodosCargos); // Qualquer usuário autenticado pode listar
 
 /**
  * @openapi
- * /cargo/{idCargo}:
+ * /cargos/{idCargo}:
  *   get:
  *     summary: Busca um cargo pelo ID
  *     tags:
@@ -88,7 +88,7 @@ router.get("/:idCargo", verificarToken, obterCargoPorId); // Qualquer usuário a
 
 /**
  * @openapi
- * /cargo/{idCargo}:
+ * /cargos/{idCargo}:
  *   put:
  *     summary: Atualiza os detalhes de um cargo pelo seu ID
  *     tags:
@@ -129,7 +129,7 @@ router.put("/:idCargo", verificarToken, atualizarCargoExistente); // Verificaç�
 
 /**
  * @openapi
- * /cargo/{idCargo}:
+ * /cargos/{idCargo}:
  *   delete:
  *     summary: Exclui um cargo pelo seu ID
  *     tags:

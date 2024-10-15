@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /municipio/cadastrar:
+ * /municipios:
  *   post:
  *     summary: Registra um novo Município
  *     tags:
@@ -47,11 +47,11 @@ const router = express.Router();
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/cadastrar", verificarToken, cirarMunicipio);
+router.post("/", verificarToken, cirarMunicipio);
 
 /**
  * @openapi
- * /municipio/listar:
+ * /municipios:
  *   get:
  *     summary: Lista todos os Municípios
  *     tags:
@@ -64,11 +64,11 @@ router.post("/cadastrar", verificarToken, cirarMunicipio);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/listar", verificarToken, buscarTodosMunicipios);
+router.get("/", verificarToken, buscarTodosMunicipios);
 
 /**
  * @openapi
- * /municipio/{idMunicipio}:
+ * /municipios/{idMunicipio}:
  *   get:
  *     summary: Busca um Município pelo ID
  *     tags:
@@ -92,7 +92,7 @@ router.get("/:idMunicipio", verificarToken, buscarMunicipioPeloId);
 
 /**
  * @openapi
- * /municipio/{idMunicipio}:
+ * /municipios/{idMunicipio}:
  *   put:
  *     summary: Atualiza os detalhes de um Município pelo seu ID
  *     tags:
@@ -137,7 +137,7 @@ router.put("/:idMunicipio", verificarToken, atualizarMunicipio);
 
 /**
  * @openapi
- * /municipio/{idMunicipio}:
+ * /municipios/{idMunicipio}:
  *   delete:
  *     summary: Exclui um Município pelo seu ID
  *     tags:

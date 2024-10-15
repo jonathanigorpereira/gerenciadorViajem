@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /viagem/cadastrar:
+ * /viagens:
  *   post:
  *     summary: Registra uma nova viagem
  *     tags:
@@ -80,15 +80,16 @@ const router = express.Router();
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/cadastrar", verificarToken, criarViagem);
+router.post("/", verificarToken, criarViagem);
 
 /**
  * @openapi
- * /viagem/listar/{idViagem}:
+ * /viagens/{idViagem}:
  *   get:
  *     summary: Busca uma viagem pelo ID
  *     tags:
  *       - Viagem
+ *     operationId: buscarViagemPeloId
  *     parameters:
  *       - name: idViagem
  *         in: path
@@ -104,39 +105,45 @@ router.post("/cadastrar", verificarToken, criarViagem);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/listar/:idViagem", verificarToken, buscarViagemPeloId);
+router.get("/:idViagem", verificarToken, buscarViagemPeloId);
 
 /**
  * @openapi
- * /viagem/listar/{idEmpregado}:
+ * /viagens/empregado/{idEmpregado}:
  *   get:
- *     summary: Busca uma viagem pelo ID
+ *     summary: Busca viagens por ID do empregado
  *     tags:
  *       - Viagem
+ *     operationId: buscarViagemPeloEmpregadoId
  *     parameters:
  *       - name: idEmpregado
  *         in: path
  *         required: true
  *         schema:
  *           type: number
- *         description: O ID único da viagem.
+ *         description: O ID do empregado.
  *     responses:
  *       200:
- *         description: Detalhes da viagem.
+ *         description: Lista de viagens associadas ao empregado.
  *       404:
- *         description: Viagem não encontrada.
+ *         description: Nenhuma viagem encontrada.
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/listar/:idEmpregado", verificarToken, buscarViagemPeloEmpregadoId);
+router.get(
+  "/empregado/:idEmpregado",
+  verificarToken,
+  buscarViagemPeloEmpregadoId
+);
 
 /**
  * @openapi
- * /viagem/atualizar/{idViagem}:
+ * /viagens/{idViagem}:
  *   put:
  *     summary: Atualiza os detalhes de uma viagem pelo seu ID
  *     tags:
  *       - Viagem
+ *     operationId: atualizarViagem
  *     security:
  *       - BearerAuth: []  # Exige autenticação JWT para acessar essa rota
  *     parameters:
@@ -209,15 +216,16 @@ router.get("/listar/:idEmpregado", verificarToken, buscarViagemPeloEmpregadoId);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.put("/atualizar/:idViagem", verificarToken, atualizarViagem);
+router.put("/:idViagem", verificarToken, atualizarViagem);
 
 /**
  * @openapi
- * /viagem/excluir/{idViagem}:
+ * /viagens/{idViagem}:
  *   delete:
  *     summary: Exclui uma viagem pelo seu ID
  *     tags:
  *       - Viagem
+ *     operationId: deletarViagem
  *     security:
  *       - BearerAuth: []  # Exige autenticação JWT para acessar essa rota
  *     parameters:
@@ -235,15 +243,16 @@ router.put("/atualizar/:idViagem", verificarToken, atualizarViagem);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.delete("/excluir/:idViagem", verificarToken, deletarViagem);
+router.delete("/:idViagem", verificarToken, deletarViagem);
 
 /**
  * @openapi
- * /viagem/exportar-pdf/{idViagem}:
+ * /viagens/{idViagem}/exportar-pdf:
  *   get:
  *     summary: Exporta uma viagem e seus destinos para PDF
  *     tags:
  *       - Viagem
+ *     operationId: exportarViagemToPdf
  *     security:
  *       - BearerAuth: []  # Exige autenticação JWT para acessar essa rota
  *     parameters:
@@ -261,6 +270,6 @@ router.delete("/excluir/:idViagem", verificarToken, deletarViagem);
  *       500:
  *         description: Erro ao gerar PDF.
  */
-router.get("/exportar-pdf/:idViagem", verificarToken, exportarViagemToPdf);
+router.get("/:idViagem/exportar-pdf", verificarToken, exportarViagemToPdf);
 
 export default router;

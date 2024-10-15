@@ -65,7 +65,12 @@ const swaggerDocs = (app) => {
     swaggerUi.setup(swaggerSpec, {
       customSiteTitle: "Gerenciamento de Viagens API Docs",
       swaggerOptions: {
-        operationsSorter: "alpha", // Ordena as operações alfabeticamente
+        operationsSorter: (a, b) => {
+          const order = ["get", "post", "put", "delete"];
+          return (
+            order.indexOf(a.get("method")) - order.indexOf(b.get("method"))
+          );
+        },
       },
     })
   );

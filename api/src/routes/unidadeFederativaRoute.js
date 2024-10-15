@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /unidadeFederativa/cadastrar:
+ * /unidades-federativas:
  *   post:
  *     summary: Registra uma nova Unidade Federativa
  *     tags:
@@ -47,11 +47,11 @@ const router = express.Router();
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/cadastrar", verificarToken, cadastrarUnidadeFederativa);
+router.post("/", verificarToken, cadastrarUnidadeFederativa);
 
 /**
  * @openapi
- * /unidadeFederativa/listar:
+ * /unidades-federativas:
  *   get:
  *     summary: Lista todas as Unidades Federativas
  *     tags:
@@ -64,11 +64,11 @@ router.post("/cadastrar", verificarToken, cadastrarUnidadeFederativa);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/listar", verificarToken, listarTodasUnidadesFederativas);
+router.get("/", verificarToken, listarTodasUnidadesFederativas);
 
 /**
  * @openapi
- * /unidadeFederativa/{idUnidadeFederativa}:
+ * /unidades-federativas/{idUnidadeFederativa}:
  *   get:
  *     summary: Busca uma Unidade Federativa pelo ID
  *     tags:
@@ -96,7 +96,7 @@ router.get(
 
 /**
  * @openapi
- * /unidadeFederativa/{idUnidadeFederativa}:
+ * /unidades-federativas/{idUnidadeFederativa}:
  *   put:
  *     summary: Atualiza os detalhes de uma Unidade Federativa pelo seu ID
  *     tags:
@@ -145,7 +145,7 @@ router.put(
 
 /**
  * @openapi
- * /unidadeFederativa/{idUnidadeFederativa}:
+ * /unidades-federativas/{idUnidadeFederativa}:
  *   delete:
  *     summary: Exclui uma Unidade Federativa pelo seu ID
  *     tags:
