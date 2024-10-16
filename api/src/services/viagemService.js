@@ -249,7 +249,6 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
     // Retornar uma lista vazia se nenhuma viagem for encontrada
     if (!viagens || viagens.length === 0) {
       return {
-        nomeEmpregado: "Empregado não encontrado",
         viagens: [],
       };
     }
