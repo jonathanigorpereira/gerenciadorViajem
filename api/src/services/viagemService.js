@@ -246,8 +246,12 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
     // 1. Buscar todas as viagens associadas ao empregado
     const viagens = await Viagem.find({ idEmpregado });
 
+    // Retornar uma lista vazia se nenhuma viagem for encontrada
     if (!viagens || viagens.length === 0) {
-      throw new Error("Nenhuma viagem encontrada para esse empregado.");
+      return {
+        nomeEmpregado: "Empregado não encontrado",
+        viagens: [],
+      };
     }
 
     // 2. Buscar o empregado associado
@@ -277,7 +281,6 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
           idMunicipio: viagem.idMunicipioSaida,
         });
 
-        // Verificar se o município de saída foi encontrado e buscar a unidade federativa
         let nomeMunicipioSaida = "Município de saída não encontrado";
         let unidadeFederativaSaida = null;
 
@@ -375,7 +378,10 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
       viagens: viagensTratadas,
     };
   } catch (error) {
-    throw new Error(`Erro ao buscar viagens do empregado: ${error.message}`);
+    // Em caso de erro, retorna uma lista vazia e uma mensagem padrão
+    return {
+      viagens: [],
+    };
   }
 };
 

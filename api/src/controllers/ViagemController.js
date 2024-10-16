@@ -31,7 +31,7 @@ export const buscarViagemPeloId = async (req, res) => {
 
 export const buscarViagemPeloEmpregadoId = async (req, res) => {
   try {
-    const viagem = await getViagemById(req.params.idEmpregado);
+    const viagem = await getViagensByEmpregadoId(req.params.idEmpregado);
     return res.status(200).json(viagem);
   } catch (error) {
     return res.status(500).json({ message: error.message });
