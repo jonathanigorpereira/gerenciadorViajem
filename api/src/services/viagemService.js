@@ -29,12 +29,10 @@ export const createViagem = async (data) => {
     const viagemEmAndamento = await Viagem.findOne({
       idEmpregado,
       $or: [
-        // Viagem existente que termina depois do início da nova e começa antes do término
         {
           DataInicioViagem: { $lt: new Date(DataTerminoViagem) },
           DataTerminoViagem: { $gt: new Date(DataInicioViagem) },
         },
-        // Viagem existente com menos de 1 semana de intervalo após o término
         {
           DataInicioViagem: {
             $gte: new Date(DataTerminoViagem),
@@ -43,7 +41,6 @@ export const createViagem = async (data) => {
             ),
           },
         },
-        // Viagem existente com menos de 1 semana de intervalo antes do início
         {
           DataTerminoViagem: {
             $gte: new Date(
@@ -55,7 +52,6 @@ export const createViagem = async (data) => {
       ],
     });
 
-    // Se existir uma viagem em andamento ou muito próxima, não permitir a criação
     if (viagemEmAndamento) {
       throw new Error(
         "Já existe uma viagem em andamento ou com intervalo menor que uma semana."
@@ -75,7 +71,7 @@ export const createViagem = async (data) => {
 
     // 3. Criar os destinos e seus respectivos custos
     for (const destino of destinos) {
-      const { idMunicipioDestino, DataDestinoViagem, custo } = destino;
+      const { idMunicipioDestino, DataDestinoViagem, custos } = destino;
 
       // Criar o destino da viagem
       const novoDestino = new DestinoViagem({
@@ -86,17 +82,19 @@ export const createViagem = async (data) => {
 
       await novoDestino.save();
 
-      // Se o destino tiver um custo, salvar também
-      if (custo) {
-        const { idTipoCusto, ValorCustoDestino } = custo;
+      // Se o destino tiver uma lista de custos, salvar cada um
+      if (custos && custos.length > 0) {
+        for (const custo of custos) {
+          const { idTipoCusto, ValorCustoDestino } = custo;
 
-        const novoCusto = new CustoDestino({
-          idDestinoViagem: novoDestino.idDestinoViagem,
-          idTipoCusto,
-          ValorCustoDestino,
-        });
+          const novoCusto = new CustoDestino({
+            idDestinoViagem: novoDestino.idDestinoViagem,
+            idTipoCusto,
+            ValorCustoDestino,
+          });
 
-        await novoCusto.save();
+          await novoCusto.save();
+        }
       }
     }
 
@@ -113,7 +111,18 @@ export const getViagemById = async (idViagem) => {
     const viagem = await Viagem.findOne({ idViagem });
 
     if (!viagem) {
-      throw new Error("Viagem não encontrada.");
+      return {
+        idViagem: null,
+        empregado: "Empregado não encontrado",
+        municipioSaida: {
+          nome: "Município de saída não encontrado",
+          unidadeFederativa: null,
+        },
+        DataInicioViagem: null,
+        DataTerminoViagem: null,
+        destinos: [],
+        statusViagem: "Status da viagem não encontrado",
+      };
     }
 
     // 2. Buscar o status da viagem
@@ -139,7 +148,6 @@ export const getViagemById = async (idViagem) => {
       idMunicipio: viagem.idMunicipioSaida,
     });
 
-    // Verificar se o município de saída foi encontrado e buscar a unidade federativa
     let nomeMunicipioSaida = "Município de saída não encontrado";
     let unidadeFederativaSaida = null;
 
@@ -163,7 +171,18 @@ export const getViagemById = async (idViagem) => {
     const destinos = await DestinoViagem.find({ idViagem });
 
     if (!destinos || destinos.length === 0) {
-      throw new Error("Nenhum destino encontrado para essa viagem.");
+      return {
+        idViagem: viagem.idViagem,
+        empregado: nomeEmpregado,
+        municipioSaida: {
+          nome: nomeMunicipioSaida,
+          unidadeFederativa: unidadeFederativaSaida,
+        },
+        DataInicioViagem: viagem.DataInicioViagem,
+        DataTerminoViagem: viagem.DataTerminoViagem,
+        destinos: [],
+        statusViagem: nomeStatusViagem,
+      };
     }
 
     // 6. Para cada destino, buscar o município de destino, a UF e os custos relacionados
@@ -173,7 +192,6 @@ export const getViagemById = async (idViagem) => {
           idMunicipio: destino.idMunicipioDestino,
         });
 
-        // Verificar se o município de destino foi encontrado e buscar a unidade federativa
         let nomeMunicipioDestino = "Município de destino não encontrado";
         let unidadeFederativaDestino = null;
 
@@ -237,7 +255,18 @@ export const getViagemById = async (idViagem) => {
       statusViagem: nomeStatusViagem,
     };
   } catch (error) {
-    throw new Error(`Erro ao buscar viagem: ${error.message}`);
+    return {
+      idViagem: null,
+      empregado: "Erro ao buscar viagem",
+      municipioSaida: {
+        nome: null,
+        unidadeFederativa: null,
+      },
+      DataInicioViagem: null,
+      DataTerminoViagem: null,
+      destinos: [],
+      statusViagem: null,
+    };
   }
 };
 

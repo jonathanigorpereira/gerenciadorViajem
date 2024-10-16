@@ -60,18 +60,21 @@ const router = express.Router();
  *                       format: date
  *                       description: Data de chegada no destino.
  *                       example: "2024-01-05"
- *                     custo:
- *                       type: object
- *                       properties:
- *                         idTipoCusto:
- *                           type: number
- *                           description: ID do tipo de custo.
- *                           example: 1
- *                         ValorCustoDestino:
- *                           type: number
- *                           format: float
- *                           description: Valor do custo associado ao destino.
- *                           example: 150.50
+ *                     custos:
+ *                       type: array
+ *                       description: Lista de custos associados ao destino.
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           idTipoCusto:
+ *                             type: number
+ *                             description: ID do tipo de custo.
+ *                             example: 1
+ *                           ValorCustoDestino:
+ *                             type: number
+ *                             format: float
+ *                             description: Valor do custo associado ao destino.
+ *                             example: 150.50
  *     responses:
  *       201:
  *         description: Viagem criada com sucesso.
