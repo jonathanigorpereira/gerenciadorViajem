@@ -6,7 +6,7 @@ import {
   atualizarCargoExistente,
   deletarCargo,
 } from "../controllers/CargoController.js";
-import { verificarToken } from "../middlewares/authMiddleware.js"; // Importa o middleware de verificação
+import { verificarToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -43,7 +43,7 @@ const router = express.Router();
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/", verificarToken, cadastrarCargo); // Agora o controlador controla o acesso
+router.post("/", verificarToken, cadastrarCargo);
 
 /**
  * @openapi
@@ -60,7 +60,7 @@ router.post("/", verificarToken, cadastrarCargo); // Agora o controlador control
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/", verificarToken, listarTodosCargos); // Qualquer usuário autenticado pode listar
+router.get("/", verificarToken, listarTodosCargos);
 
 /**
  * @openapi
@@ -84,7 +84,7 @@ router.get("/", verificarToken, listarTodosCargos); // Qualquer usuário autenti
  *       500:
  *         description: Erro interno do servidor.
  */
-router.get("/:idCargo", verificarToken, obterCargoPorId); // Qualquer usuário autenticado pode ver os detalhes
+router.get("/:idCargo", verificarToken, obterCargoPorId);
 
 /**
  * @openapi
@@ -125,7 +125,7 @@ router.get("/:idCargo", verificarToken, obterCargoPorId); // Qualquer usuário a
  *       500:
  *         description: Erro interno do servidor.
  */
-router.put("/:idCargo", verificarToken, atualizarCargoExistente); // Verificação de permissão no controlador
+router.put("/:idCargo", verificarToken, atualizarCargoExistente);
 
 /**
  * @openapi
@@ -151,6 +151,6 @@ router.put("/:idCargo", verificarToken, atualizarCargoExistente); // Verificaç�
  *       500:
  *         description: Erro interno do servidor.
  */
-router.delete("/:idCargo", verificarToken, deletarCargo); // Verificação de permissão no controlador
+router.delete("/:idCargo", verificarToken, deletarCargo);
 
 export default router;

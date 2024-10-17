@@ -3,9 +3,12 @@ import {
   getViagemById,
   getViagensByEmpregadoId,
   updateViagem,
+  approveViagem,
+  disapproveViagem,
   deleteViagem,
   exportViagemToPdf,
 } from "../services/viagemService.js";
+import Empregado from "../models/Empregado.js";
 import path from "path";
 import os from "os";
 
@@ -65,5 +68,67 @@ export const exportarViagemToPdf = async (req, res) => {
     await exportViagemToPdf(idViagem, res); // Passa a resposta para o serviço
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+// Função para aprovar uma viagem
+export const aprovarViagem = async (req, res) => {
+  try {
+    const { idViagem } = req.params;
+    // 1. Buscar o empregado aprovador
+    const empregadoAprovador = await Empregado.findOne({
+      idEmpregado: req.user.idEmpregado,
+    });
+
+    if (!empregadoAprovador) {
+      return res.status(404).json({ error: "Empregado não encontrado." });
+    }
+
+    // 2. Verificar se o empregado tem idCargo = 1
+    if (empregadoAprovador.idCargo !== 1) {
+      return res.status(403).json({
+        error: "Apenas administradores podem aprovar viagens.",
+      });
+    }
+
+    // 3. Chamar a função de serviço para aprovar a viagem
+    await approveViagem(idViagem);
+
+    // 4. Retornar a mensagem de sucesso
+    return res.status(200).json({ message: "Viagem aprovada com sucesso!" });
+  } catch (error) {
+    // Tratamento de erros
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Função para reprovar uma viagem
+export const reprovarViagem = async (req, res) => {
+  try {
+    const { idViagem } = req.params;
+    // 1. Buscar o empregado aprovador
+    const empregadoAprovador = await Empregado.findOne({
+      idEmpregado: req.user.idEmpregado,
+    });
+
+    if (!empregadoAprovador) {
+      return res.status(404).json({ error: "Empregado não encontrado." });
+    }
+
+    // 2. Verificar se o empregado tem idCargo = 1
+    if (empregadoAprovador.idCargo !== 1) {
+      return res.status(403).json({
+        error: "Apenas administradores podem reprovar viagens.",
+      });
+    }
+
+    // 3. Chamar a função de serviço para aprovar a viagem
+    await disapproveViagem(idViagem);
+
+    // 4. Retornar a mensagem de sucesso
+    return res.status(200).json({ message: "Viagem aprovada com sucesso!" });
+  } catch (error) {
+    // Tratamento de erros
+    return res.status(500).json({ error: error.message });
   }
 };

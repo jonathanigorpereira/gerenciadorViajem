@@ -28,7 +28,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 // Configuração de CORS
 app.use(
   cors({
-    origin: "http://localhost:3000", // Endereço do seu frontend
+    origin: process.env.BASE_FRONT_URL || "http://localhost:3000",
     credentials: true,
   })
 );

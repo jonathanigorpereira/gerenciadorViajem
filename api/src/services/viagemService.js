@@ -774,6 +774,52 @@ export const updateViagem = async (idViagem, data) => {
   }
 };
 
+// Função para aprovar uma viagem
+export const approveViagem = async (idViagem) => {
+  try {
+    // 1. Buscar a viagem existente
+    const viagemExistente = await getViagemById(idViagem);
+
+    if (!viagemExistente) {
+      throw new Error("Viagem não encontrada.");
+    }
+
+    // 2. Atualizar o idStatusViagem para 2 (aprovado)
+    await Viagem.findOneAndUpdate(
+      { idViagem },
+      { idStatusViagem: 2 },
+      { new: true }
+    );
+
+    return;
+  } catch (error) {
+    throw new Error(`Erro ao aprovar viagem: ${error.message}`);
+  }
+};
+
+// Função para reprovar uma viagem
+export const disapproveViagem = async (idViagem) => {
+  try {
+    // 1. Buscar a viagem existente
+    const viagemExistente = await getViagemById(idViagem);
+
+    if (!viagemExistente) {
+      throw new Error("Viagem não encontrada.");
+    }
+
+    // 2. Atualizar o idStatusViagem para 3 (reprovado)
+    await Viagem.findOneAndUpdate(
+      { idViagem },
+      { idStatusViagem: 3 },
+      { new: true }
+    );
+
+    return;
+  } catch (error) {
+    throw new Error(`Erro ao reprovar viagem: ${error.message}`);
+  }
+};
+
 // Excluir uma viagem e seus destinos/custos relacionados
 export const deleteViagem = async (idViagem) => {
   try {

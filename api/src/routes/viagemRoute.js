@@ -6,6 +6,8 @@ import {
   atualizarViagem,
   deletarViagem,
   exportarViagemToPdf,
+  aprovarViagem,
+  reprovarViagem,
 } from "../controllers/ViagemController.js";
 import { verificarToken } from "../middlewares/authMiddleware.js";
 
@@ -304,6 +306,128 @@ router.get(
  *         description: Erro interno do servidor.
  */
 router.put("/:idViagem", verificarToken, atualizarViagem);
+
+/**
+ * @openapi
+ * /viagens/{idViagem}/aprovar:
+ *   put:
+ *     summary: Aprova uma viagem pelo seu ID
+ *     tags:
+ *       - Viagem
+ *     operationId: aprovarViagem
+ *     security:
+ *       - BearerAuth: []  # Exige autenticação JWT para acessar essa rota
+ *     parameters:
+ *       - in: path
+ *         name: idViagem
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: O ID único da viagem a ser aprovada.
+ *     responses:
+ *       200:
+ *         description: Viagem aprovada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Viagem aprovada com sucesso!"
+ *       403:
+ *         description: Operação não autorizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Apenas empregados com cargo 1 podem aprovar viagens."
+ *       404:
+ *         description: Viagem não encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Viagem não encontrada."
+ *       500:
+ *         description: Erro interno do servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro ao aprovar viagem."
+ */
+router.put("/:idViagem/aprovar", verificarToken, aprovarViagem);
+
+/**
+ * @openapi
+ * /viagens/{idViagem}/reprovar:
+ *   put:
+ *     summary: Reprova uma viagem pelo seu ID
+ *     tags:
+ *       - Viagem
+ *     operationId: reprovarViagem
+ *     security:
+ *       - BearerAuth: []  # Exige autenticação JWT para acessar essa rota
+ *     parameters:
+ *       - in: path
+ *         name: idViagem
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: O ID único da viagem a ser reprovada.
+ *     responses:
+ *       200:
+ *         description: Viagem reprovada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Viagem reprovada com sucesso!"
+ *       403:
+ *         description: Operação não autorizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Apenas administradores podem reprovar viagens."
+ *       404:
+ *         description: Viagem não encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Viagem não encontrada."
+ *       500:
+ *         description: Erro interno do servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Erro ao reprovar viagem."
+ */
+router.put("/:idViagem/aprovar", verificarToken, reprovarViagem);
 
 /**
  * @openapi
