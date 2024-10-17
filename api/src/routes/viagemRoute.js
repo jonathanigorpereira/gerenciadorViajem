@@ -30,11 +30,19 @@ const router = express.Router();
  *             properties:
  *               idEmpregado:
  *                 type: number
- *                 description: ID do empregado associado à viagem.
+ *                 description: ID do usuário associado à viagem.
+ *                 example: 1
+ *               idUnidadeFederativa:
+ *                 type: number
+ *                 description: ID da unidade federativa de saída.
  *                 example: 1
  *               idMunicipioSaida:
  *                 type: number
- *                 description: ID do destino de saída.
+ *                 description: ID do município de saída.
+ *                 example: 1
+ *               idStatusViagem:
+ *                 type: number
+ *                 description: Status da viagem.
  *                 example: 1
  *               DataInicioViagem:
  *                 type: string
@@ -51,10 +59,14 @@ const router = express.Router();
  *                 items:
  *                   type: object
  *                   properties:
+ *                     idUnidadeFederativa:
+ *                       type: number
+ *                       description: ID da unidade federativa do destino.
+ *                       example: 1
  *                     idMunicipioDestino:
  *                       type: number
  *                       description: ID do município de destino.
- *                       example: 101
+ *                       example: 1
  *                     DataDestinoViagem:
  *                       type: string
  *                       format: date
@@ -68,7 +80,7 @@ const router = express.Router();
  *                         properties:
  *                           idTipoCusto:
  *                             type: number
- *                             description: ID do tipo de custo.
+ *                             description: ID do custo.
  *                             example: 1
  *                           ValorCustoDestino:
  *                             type: number
@@ -166,7 +178,19 @@ router.get(
  *               idEmpregado:
  *                 type: number
  *                 description: ID do empregado associado à viagem.
- *                 example: 1001
+ *                 example: 1
+ *               idUnidadeFederativa:
+ *                 type: number
+ *                 description: ID da unidade federativa da viagem.
+ *                 example: 1
+ *               idMunicipioSaida:
+ *                 type: number
+ *                 description: ID do município de saída.
+ *                 example: 1
+ *               idStatusViagem:
+ *                 type: number
+ *                 description: ID do status da viagem.
+ *                 example: 1
  *               DataInicioViagem:
  *                 type: string
  *                 format: date
@@ -182,38 +206,98 @@ router.get(
  *                 items:
  *                   type: object
  *                   properties:
- *                     idDestinoViagem:
+ *                     idUnidadeFederativa:
  *                       type: number
- *                       description: ID único do destino.
+ *                       description: ID da unidade federativa do destino.
  *                       example: 1
  *                     idMunicipioDestino:
  *                       type: number
  *                       description: ID do município de destino.
- *                       example: 101
+ *                       example: 1
  *                     DataDestinoViagem:
  *                       type: string
  *                       format: date
  *                       description: Data de chegada no destino.
  *                       example: "2024-01-05"
- *                     custo:
- *                       type: object
- *                       properties:
- *                         idCustoDestino:
- *                           type: number
- *                           description: ID único do custo.
- *                           example: 1
- *                         idTipoCusto:
- *                           type: number
- *                           description: ID do tipo de custo.
- *                           example: 1
- *                         ValorCustoDestino:
- *                           type: number
- *                           format: float
- *                           description: Valor do custo associado ao destino.
- *                           example: 150.50
+ *                     custos:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           idTipoCusto:
+ *                             type: number
+ *                             description: ID do tipo de custo.
+ *                             example: 1
+ *                           ValorCustoDestino:
+ *                             type: number
+ *                             format: float
+ *                             description: Valor do custo associado ao destino.
+ *                             example: 150.5
  *     responses:
  *       200:
  *         description: Viagem atualizada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 idViagem:
+ *                   type: number
+ *                   description: O ID da viagem.
+ *                   example: 21
+ *                 idEmpregado:
+ *                   type: number
+ *                   description: O ID do empregado associado à viagem.
+ *                   example: 1
+ *                 idUnidadeFederativa:
+ *                   type: number
+ *                   description: O ID da unidade federativa da viagem.
+ *                   example: 1
+ *                 idMunicipioSaida:
+ *                   type: number
+ *                   description: O ID do município de saída.
+ *                   example: 1
+ *                 idStatusViagem:
+ *                   type: number
+ *                   description: O ID do status da viagem.
+ *                   example: 1
+ *                 DataInicioViagem:
+ *                   type: string
+ *                   format: date
+ *                   description: Data de início da viagem.
+ *                   example: "2024-01-01"
+ *                 DataTerminoViagem:
+ *                   type: string
+ *                   format: date
+ *                   description: Data de término da viagem.
+ *                   example: "2024-01-10"
+ *                 destinos:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       idUnidadeFederativa:
+ *                         type: number
+ *                         example: 1
+ *                       idMunicipioDestino:
+ *                         type: number
+ *                         example: 1
+ *                       DataDestinoViagem:
+ *                         type: string
+ *                         format: date
+ *                         example: "2024-01-05"
+ *                       custos:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             idTipoCusto:
+ *                               type: number
+ *                               example: 1
+ *                             ValorCustoDestino:
+ *                               type: number
+ *                               format: float
+ *                               example: 150.5
  *       404:
  *         description: Viagem não encontrada.
  *       500:
