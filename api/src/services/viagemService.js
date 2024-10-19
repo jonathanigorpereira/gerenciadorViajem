@@ -220,7 +220,7 @@ export const getViagemById = async (idViagem) => {
             return {
               idTipoCusto: tipoCusto?.idTipoCusto || null,
               NomeTipoCusto: tipoCusto?.NomeTipoCusto || "Desconhecido",
-              ValorCustoDestino: formatCurrency(custo.ValorCustoDestino),
+              ValorCustoDestino: custo.ValorCustoDestino,
             };
           })
         );
@@ -233,7 +233,7 @@ export const getViagemById = async (idViagem) => {
           idMunicipioDestino: municipioDestino
             ? municipioDestino.idMunicipio
             : null,
-          DataDestinoViagem: formatDate(destino.DataDestinoViagem),
+          DataDestinoViagem: destino.DataDestinoViagem,
           municipio: {
             idMunicipio: municipioDestino ? municipioDestino.idMunicipio : null,
             NomeMunicipio: municipioDestino
@@ -267,8 +267,8 @@ export const getViagemById = async (idViagem) => {
         : "UF de saída não encontrada",
       idStatusViagem: viagem.idStatusViagem,
       NomeStatusViagem: nomeStatusViagem,
-      DataInicioViagem: formatDate(viagem.DataInicioViagem),
-      DataTerminoViagem: formatDate(viagem.DataTerminoViagem),
+      DataInicioViagem: viagem.DataInicioViagem,
+      DataTerminoViagem: viagem.DataTerminoViagem,
       usuario: usuario,
       destinos: destinosTratados,
     };
@@ -383,7 +383,7 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
                 return {
                   idTipoCusto: tipoCusto?.idTipoCusto || null,
                   NomeTipoCusto: tipoCusto?.NomeTipoCusto || "Desconhecido",
-                  ValorCustoDestino: formatCurrency(custo.ValorCustoDestino),
+                  ValorCustoDestino: custo.ValorCustoDestino,
                 };
               })
             );
@@ -396,7 +396,7 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
               idUnidadeFederativa: unidadeFederativaDestino
                 ? unidadeFederativaDestino.idUnidadeFederativa
                 : null,
-              DataDestinoViagem: formatDate(destino.DataDestinoViagem),
+              DataDestinoViagem: destino.DataDestinoViagem,
               municipio: {
                 idMunicipio: municipioDestino
                   ? municipioDestino.idMunicipio
@@ -418,8 +418,8 @@ export const getViagensByEmpregadoId = async (idEmpregado) => {
         return {
           idViagem: viagem.idViagem,
           NomeStatusViagem: nomeStatusViagem,
-          DataInicioViagem: formatDate(viagem.DataInicioViagem),
-          DataTerminoViagem: formatDate(viagem.DataTerminoViagem),
+          DataInicioViagem: viagem.DataInicioViagem,
+          DataTerminoViagem: viagem.DataTerminoViagem,
           municipioSaida: {
             idMunicipioSaida: municipioSaida
               ? municipioSaida.idMunicipio
@@ -551,8 +551,16 @@ export const exportViagemToPdf = async (idViagem, res) => {
       .moveDown(1)
       .fillColor(darkGray)
       .fontSize(12)
-      .text(`Data de Partida: ${viagem.DataInicioViagem}`, 50, doc.y + 10)
-      .text(`Data de Chegada: ${viagem.DataTerminoViagem}`, 50, doc.y + 30)
+      .text(
+        `Data de Partida: ${formatDate(viagem.DataInicioViagem)}`,
+        50,
+        doc.y + 10
+      )
+      .text(
+        `Data de Chegada: ${formatDate(viagem.DataTerminoViagem)}`,
+        50,
+        doc.y + 30
+      )
       .moveDown(2);
 
     // Destinos
@@ -579,7 +587,11 @@ export const exportViagemToPdf = async (idViagem, res) => {
           50,
           doc.y + 10
         )
-        .text(`Data de Chegada: ${destino.DataDestinoViagem}`, 50, doc.y + 30)
+        .text(
+          `Data de Chegada: ${formatDate(destino.DataDestinoViagem)}`,
+          50,
+          doc.y + 30
+        )
         .moveDown(1);
 
       // Se há custos, exibi-los
@@ -595,7 +607,9 @@ export const exportViagemToPdf = async (idViagem, res) => {
             .fontSize(12)
             .fillColor(darkGray)
             .text(`- Tipo de Custo: ${custo.NomeTipoCusto}`)
-            .text(`- Valor: ${custo.ValorCustoDestino.toString()}`)
+            .text(
+              `- Valor: ${formatCurrency(custo.ValorCustoDestino).toString()}`
+            )
             .moveDown(0.5);
         });
       }

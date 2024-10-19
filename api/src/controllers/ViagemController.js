@@ -126,7 +126,7 @@ export const reprovarViagem = async (req, res) => {
     await disapproveViagem(idViagem);
 
     // 4. Retornar a mensagem de sucesso
-    return res.status(200).json({ message: "Viagem aprovada com sucesso!" });
+    return res.status(200).json({ message: "Viagem reprovada com sucesso!" });
   } catch (error) {
     // Tratamento de erros
     return res.status(500).json({ error: error.message });
