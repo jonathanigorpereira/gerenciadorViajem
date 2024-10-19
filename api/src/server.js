@@ -26,12 +26,26 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 // Configuração de CORS
-app.use(
-  cors({
-    origin: process.env.BASE_FRONT_URL,
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  process.env.BASE_FRONT_URL,
+  "http://localhost:3000",
+  "https://gerenciadorviajem.onrender.com",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Não permitido pelo CORS."));
+    }
+  },
+  credentials: true,
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type,Authorization",
+};
+
+app.use(cors(corsOptions));
 
 // Conecta ao banco de dados
 connectDB();

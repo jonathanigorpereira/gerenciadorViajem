@@ -42,7 +42,7 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/api/v1/auth/failure" }),
   (req, res) => {
     // Redireciona para o dashboard após autenticação bem-sucedida
-    res.redirect(`http://localhost:3000/dashboard`);
+    res.redirect(`http://localhost:3000/`);
   }
 );
 
