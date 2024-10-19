@@ -13,7 +13,7 @@ const router = express.Router();
  *     summary: Inicia o processo de autenticação com o Google OAuth.
  *     tags:
  *       - Autenticação
- *     description: Redireciona o usuário para o Google para autenticação OAuth.
+ *     description: Redireciona o usuário para o Google para autenticação OAuth. Essa rota deve ser acessada via navegador, pois envolve redirecionamentos de autenticação.
  *     responses:
  *       302:
  *         description: Redireciona para o Google para autenticação.
@@ -39,8 +39,15 @@ router.get(
  */
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/api/v1/auth/failure" }),
+  passport.authenticate("google", { failureRedirect: "/failure" }),
   (req, res) => {
+    // Verifica se o usuário foi autenticado corretamente
+    console.log("Usuário autenticado:", req.user);
+
+    if (!req.user) {
+      return res.redirect("/failure"); // Redireciona em caso de falha
+    }
+
     // Redireciona para o dashboard após autenticação bem-sucedida
     res.redirect(`http://localhost:3000/`);
   }

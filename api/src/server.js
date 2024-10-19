@@ -26,26 +26,12 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 // Configuração de CORS
-const allowedOrigins = [
-  process.env.BASE_FRONT_URL,
-  "http://localhost:3000",
-  "https://gerenciadorviajem.onrender.com",
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Não permitido pelo CORS."));
-    }
-  },
-  credentials: true,
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  allowedHeaders: "Content-Type,Authorization",
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: [process.env.BASE_URL, "http://localhost:3000"],
+    credentials: true,
+  })
+);
 
 // Conecta ao banco de dados
 connectDB();
@@ -85,26 +71,25 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Verifique se o usuário já existe no banco de dados pelo googleId
+        //console.log("Autenticação bem-sucedida, perfil recebido:", profile);
         let user = await Empregado.findOne({ googleId: profile.id });
 
         if (!user) {
-          // Se o usuário não existe, crie um novo registro
+          console.log("Criando novo usuário");
           user = new Empregado({
             googleId: profile.id,
             nomeEmpregado:
               profile.displayName ||
               `${profile.name.givenName} ${profile.name.familyName}`,
-            email: profile.emails[0].value, // O email principal retornado pelo Google
-            idCargo: 2, // cargo padrão
+            email: profile.emails[0].value,
+            idCargo: 2,
             ativo: true,
           });
-
-          await user.save(); // Salva o novo empregado
+          await user.save();
         }
-
         return done(null, user);
       } catch (err) {
+        console.error("Erro durante a autenticação:", err);
         return done(err, null);
       }
     }

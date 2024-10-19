@@ -427,7 +427,7 @@ router.put("/:idViagem/aprovar", verificarToken, aprovarViagem);
  *                   type: string
  *                   example: "Erro ao reprovar viagem."
  */
-router.put("/:idViagem/aprovar", verificarToken, reprovarViagem);
+router.put("/:idViagem/reprovar", verificarToken, reprovarViagem);
 
 /**
  * @openapi
