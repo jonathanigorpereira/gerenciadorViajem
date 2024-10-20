@@ -65,7 +65,7 @@ export const deletarViagem = async (req, res) => {
 export const exportarViagemToPdf = async (req, res) => {
   try {
     const { idViagem } = req.params;
-    await exportViagemToPdf(idViagem, res); // Passa a resposta para o serviço
+    await exportViagemToPdf(idViagem, res);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

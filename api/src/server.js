@@ -28,7 +28,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 // Configuração de CORS
 app.use(
   cors({
-    origin: [process.env.BASE_URL, "http://localhost:3000"],
+    origin: [process.env.BASE_FRONT_URL],
     credentials: true,
   })
 );
@@ -67,15 +67,13 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL:
         process.env.GOOGLE_CALLBACK_URL ||
-        process.env.BASE_URL + "/auth/google/callback",
+        process.env.BASE_URL + "/api/v1/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        //console.log("Autenticação bem-sucedida, perfil recebido:", profile);
         let user = await Empregado.findOne({ googleId: profile.id });
 
         if (!user) {
-          console.log("Criando novo usuário");
           user = new Empregado({
             googleId: profile.id,
             nomeEmpregado:

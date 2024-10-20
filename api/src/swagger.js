@@ -2,10 +2,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import dotenv from "dotenv";
 
-// Configuração do ambiente
 dotenv.config();
 
-// Definindo as opções do Swagger
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -13,11 +11,11 @@ const options = {
       title: "Gerenciamento de Viagens API",
       description:
         "API para gerenciamento de viagens com suporte a OAuth Google e JWT",
-      version: "1.0.0", // Versão da API
+      version: "1.0.0",
     },
     servers: [
       {
-        url: process.env.BASE_URL, // Atualize conforme necessário
+        url: process.env.BASE_URL + "/api/v1",
       },
     ],
     components: {
@@ -48,17 +46,16 @@ const options = {
         googleOAuth: [],
       },
       {
-        BearerAuth: [], // Definindo segurança global para JWT
+        BearerAuth: [],
       },
     ],
   },
-  apis: ["./src/routes/*.js"], // Caminho para os arquivos de documentação das rotas
+  apis: ["./src/routes/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 const swaggerDocs = (app) => {
-  // Serve a documentação do Swagger na rota /api-documentacao
   app.use(
     "/api-documentacao",
     swaggerUi.serve,
@@ -75,7 +72,6 @@ const swaggerDocs = (app) => {
     })
   );
 
-  // Disponibiliza a documentação em formato JSON
   app.get("/docs.json", (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);

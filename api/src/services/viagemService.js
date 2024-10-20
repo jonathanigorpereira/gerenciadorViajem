@@ -142,7 +142,6 @@ export const getViagemById = async (idViagem) => {
   try {
     // 1. Buscar a viagem principal
     const viagem = await Viagem.findOne({ idViagem });
-    console.log("viagem=>", viagem);
     if (!viagem) {
       return {
         idViagem: null,

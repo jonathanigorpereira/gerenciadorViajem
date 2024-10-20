@@ -3,6 +3,7 @@ import passport from "passport";
 import { login, logout } from "../controllers/authController.js"; // Controladores de login e logout usando JWT
 import { verificarToken } from "../middlewares/authMiddleware.js";
 import Cargo from "../models/Cargo.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -41,15 +42,22 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/failure" }),
   (req, res) => {
-    // Verifica se o usuário foi autenticado corretamente
-    console.log("Usuário autenticado:", req.user);
-
     if (!req.user) {
-      return res.redirect("/failure"); // Redireciona em caso de falha
+      return res.redirect("/failure");
     }
 
-    // Redireciona para o dashboard após autenticação bem-sucedida
-    res.redirect(`http://localhost:3000/`);
+    const token = jwt.sign(
+      {
+        idEmpregado: req.user.idEmpregado,
+        idCargo: req.user.idCargo,
+        nomeEmpregado: req.user.nomeEmpregado,
+        email: req.user.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.redirect(process.env.BASE_FRONT_URL + `/login?token=${token}`);
   }
 );
 
