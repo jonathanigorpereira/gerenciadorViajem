@@ -103,7 +103,7 @@ router.get("/:idEmpregado", verificarToken, getEmpregadoPorId);
  *       500:
  *         description: Erro interno do servidor.
  */
-router.post("/", verificarToken, cadastrarEmpregado);
+router.post("/", cadastrarEmpregado);
 
 /**
  * @openapi
