@@ -1,38 +1,69 @@
-.App {
-  text-align: center;
+.bg-gradient {
+  background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%) !important;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.input-group-text {
+  background-color: transparent;
+  border-right: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.input-group input {
+  border-left: none;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.navbar {
+  background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+}
+
+.nav-link {
+  border-radius: 30px;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.nav-link.active {
+  background-color: white;
+  color: black !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  font-weight: 500;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nav-link svg {
+  margin-right: 5px;
+  width: 22px;
+  height: 22px;
+  stroke-width: 1;
+}
+
+.nav-link.active svg {
+  stroke-width: 1.5;
+}
+
+button svg {
+  stroke-width: 1;
+  margin-right: 5px;
+  margin-top: -4px;
+}
+
+td,
+th {
+  vertical-align: middle;
+}
+
+
+.btn {
+  border-radius: 25px;
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+.dropdown-item {
+  cursor: pointer;
+}
+
+.required::after {
+  content: "*";
+  color: red;
+  margin-left: 4px;
 }

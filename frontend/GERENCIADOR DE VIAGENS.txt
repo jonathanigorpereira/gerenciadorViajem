@@ -1,0 +1,47 @@
+GERENCIADOR DE VIAGENS
+
+criar usuário, cria a senha já;
+editar usuário não alterar a senha.
+
+
+
+Cargo id = 1 é sempre o admin
+
+
+user normal cria a viajem.
+admin pode aprovar/rejeitar a viajem.
+
+Admin:
+Pode ver tudo
+
+Não admin:
+Viagens
+
+----------------------------------------
+
+VIAJENS
+Formulario para solicitar viajem.
+> unidade federativa (estado) [origem e destino]
+> cidade [origem e destino]
+> data inicio
+> data fim
+
+uma origem e N destinos.
+custos são por destino
+cada destino tem uma data
+
+
+CUSTOS:
+Passagem
+Alimentação
+Hospedagem
+Transporte (Uber/Taxi)
+
+
+
+vai criar com o ststus pendente.
+Pendente / Aprovado / Reprovado
+
+
+
+
