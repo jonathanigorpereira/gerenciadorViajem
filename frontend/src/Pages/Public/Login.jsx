@@ -18,11 +18,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Adiciona a classe ao body quando o componente é montado
-    document.body.classList.add('bg-gradient');
+    document.body.classList.add("bg-gradient");
 
     // Remove a classe ao desmontar o componente
     return () => {
-      document.body.classList.remove('bg-gradient');
+      document.body.classList.remove("bg-gradient");
     };
   }, []);
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
       window.history.replaceState({}, document.title, "/");
 
       // Redireciona para o dashboard ou página principal
-      window.location.href = "http://localhost:3000/";
+      window.location.href = "https://gerenciador-viajem.vercel.app/";
     }
   }, [navigate]);
 
