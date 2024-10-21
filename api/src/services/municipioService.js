@@ -117,12 +117,13 @@ export const getMunicipiosByUF = async (idUnidadeFederativa) => {
 
     // Adiciona os dados da unidade federativa a cada município
     return municipios.map((municipio) => {
-      const { NomeMunicipio, idMunicipio } = municipio.toObject();
+      const { NomeMunicipio, idMunicipio, ativo } = municipio.toObject();
       const { SiglaUnidadeFederativa, NomeUnidadeFederativa } =
         unidadeFederativa;
       return {
         NomeMunicipio,
         idMunicipio,
+        ativo,
       };
     });
   } catch (error) {
