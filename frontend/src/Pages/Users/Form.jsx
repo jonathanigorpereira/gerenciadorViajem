@@ -157,7 +157,7 @@ export default function Users_FormPage() {
                                     id="ativoSwitch"
                                     required
                                     disabled={processing || importing}
-                                    value={user.ativo}
+                                    checked={user.ativo}
                                     onChange={({ target }) => setUser(_ => ({ ..._, ativo: target.checked }))}
                                 />
                                 <label className="form-check-label" htmlFor="ativoSwitch">
