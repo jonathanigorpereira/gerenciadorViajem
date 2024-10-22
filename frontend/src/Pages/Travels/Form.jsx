@@ -25,7 +25,7 @@ export default function Travels_FormPage() {
   const { identifier } = useParams();
   const actualUser = useContext(UserContext);
   const navigate = useNavigate();
-  const lastDestinationRef = useRef(null); // Referência para o último destino
+  const lastDestinationRef = useRef(null);
 
   const [travel, setTravel] = useState(TRAVEL);
   const [destinos, setDestinos] = useState(travel.destinos);
@@ -47,7 +47,6 @@ export default function Travels_FormPage() {
   const [errorOnImportUsers, setErrorOnImportUsers] = useState();
 
   useEffect(() => {
-    console.log("travel", travel);
     getFederativeUnits();
     getUsers();
   }, []);
@@ -117,6 +116,26 @@ export default function Travels_FormPage() {
     const updatedTravel = {
       ...travel,
       idEmpregado: travel.idEmpregado || actualUser.idEmpregado,
+      DataInicioViagem: travel.DataInicioViagem || new Date(),
+      DataTerminoViagem: travel.DataTerminoViagem,
+      destinos: Array.isArray(travel.destinos)
+        ? travel.destinos.map((destination) => ({
+            ...destination,
+            custos: destination.custos.map((custo) => {
+              const valorAtual =
+                custo.ValorCustoDestino?.$numberDecimal ||
+                custo.ValorCustoDestino;
+
+              return {
+                ...custo,
+                ValorCustoDestino:
+                  valorAtual && !isNaN(valorAtual)
+                    ? parseFloat(valorAtual)
+                    : parseFloat(custo.ValorCustoDestino) || 0,
+              };
+            }),
+          }))
+        : [],
     };
     try {
       identifier
@@ -176,12 +195,11 @@ export default function Travels_FormPage() {
     };
     setTravel((_) => ({ ..._, destinos: [..._.destinos, destination] }));
 
-    // Após adicionar, rola a tela até o último card
     setTimeout(() => {
       if (lastDestinationRef.current) {
         lastDestinationRef.current.scrollIntoView({ behavior: "smooth" });
       }
-    }, 0); // O timeout garante que o DOM seja atualizado antes de tentar rolar.
+    }, 0);
   }
 
   function removeDestination(index) {
@@ -211,7 +229,20 @@ export default function Travels_FormPage() {
     }));
   }
 
+  // Função para formatar os valores como moeda (R$)
+  function formatCurrency(value) {
+    if (!value) return "";
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  }
+
+  // Atualização dos custos com formatação correta no input
   function updateCost(destinationIndex, idTipoCusto, newValue) {
+    // Remove a formatação de moeda e converte para número para salvar corretamente
+    const numericValue = parseFloat(newValue.replace(/\D/g, "")) / 100;
+
     setTravel((prevTravel) => ({
       ...prevTravel,
       destinos: prevTravel.destinos.map((destination, i) =>
@@ -220,7 +251,7 @@ export default function Travels_FormPage() {
               ...destination,
               custos: destination.custos.map((custo) =>
                 custo.idTipoCusto === idTipoCusto
-                  ? { ...custo, ValorCustoDestino: newValue }
+                  ? { ...custo, ValorCustoDestino: numericValue }
                   : custo
               ),
             }
@@ -333,7 +364,7 @@ export default function Travels_FormPage() {
                       }))
                     }
                   >
-                    {importingFederativeUnits == false &&
+                    {importingFederativeUnits === false &&
                       travel.unidadeFederativaId == null && (
                         <option
                           selected
@@ -372,7 +403,7 @@ export default function Travels_FormPage() {
                       }));
                     }}
                   >
-                    {importingCities == false &&
+                    {importingCities === false &&
                       travel.idMunicipioSaida == null && (
                         <option
                           selected

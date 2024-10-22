@@ -47,13 +47,9 @@ export async function GetTravelPDF(idViagem, token) {
   try {
     const response = await axios.get(`/viagens/${idViagem}/exportar-pdf`, {
       responseType: "blob",
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
     });
     return response;
   } catch (error) {
-    console.log("error=>", error);
     throw error;
   }
 }

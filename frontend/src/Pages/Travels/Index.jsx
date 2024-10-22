@@ -487,6 +487,7 @@ export default function Travels_IndexPage() {
                           </td>
 
                           {/* Opções */}
+
                           <td className="text-end">
                             <div class="dropdown">
                               <button
@@ -498,10 +499,11 @@ export default function Travels_IndexPage() {
                                 <li>
                                   <h5 className=" dropdown-header">Viagem</h5>
                                 </li>
+                                {/* Visualizar - Sempre disponível */}
                                 <li>
                                   <Link
-                                    class="dropdown-item"
-                                    to={`/viagens/editar/${travel.idViagem}`}
+                                    className="dropdown-item"
+                                    to={`/viagens/visualizar/${travel.idViagem}`}
                                   >
                                     <IconPencil
                                       className="icon me-2"
@@ -509,64 +511,84 @@ export default function Travels_IndexPage() {
                                       size={18}
                                       style={{ marginTop: "-4px" }}
                                     />
-                                    Editar
+                                    Visualizar
                                   </Link>
                                 </li>
-                                <li>
-                                  <a
-                                    class="dropdown-item"
-                                    onClick={() =>
-                                      deleteTravel(travel.idViagem)
-                                    }
-                                  >
-                                    <IconTrash
-                                      className="icon me-2"
-                                      stroke={1}
-                                      size={18}
-                                      style={{ marginTop: "-4px" }}
-                                    />
-                                    Excluir
-                                  </a>
-                                </li>
+                                {isAdmin &&
+                                  travel.NomeStatusViagem === "Pendente" && (
+                                    <li>
+                                      <Link
+                                        class="dropdown-item"
+                                        to={`/viagens/editar/${travel.idViagem}`}
+                                      >
+                                        <IconPencil
+                                          className="icon me-2"
+                                          stroke={1}
+                                          size={18}
+                                          style={{ marginTop: "-4px" }}
+                                        />
+                                        Editar
+                                      </Link>
+                                    </li>
+                                  )}
                                 {isAdmin &&
                                   travel.NomeStatusViagem !== "Aprovado" &&
                                   travel.NomeStatusViagem !== "Reprovado" && (
-                                    <li>
-                                      <div className=" dropdown-divider" />
-                                      <h5 className=" dropdown-header">
-                                        Aprovação
-                                      </h5>
+                                    <>
                                       <li>
                                         <a
                                           class="dropdown-item"
                                           onClick={() =>
-                                            approveTravel(travel.idViagem)
+                                            deleteTravel(travel.idViagem)
                                           }
                                         >
-                                          <IconCheck
+                                          <IconTrash
                                             className="icon me-2"
                                             stroke={1}
                                             size={18}
                                             style={{ marginTop: "-4px" }}
                                           />
-                                          Aprovar
-                                        </a>
-                                        <a
-                                          class="dropdown-item"
-                                          onClick={() =>
-                                            rejectTravel(travel.idViagem)
-                                          }
-                                        >
-                                          <IconX
-                                            className="icon me-2"
-                                            stroke={1}
-                                            size={18}
-                                            style={{ marginTop: "-4px" }}
-                                          />
-                                          Rejeitar
+                                          Excluir
                                         </a>
                                       </li>
-                                    </li>
+
+                                      <li>
+                                        <div className=" dropdown-divider" />
+                                        <h5 className=" dropdown-header">
+                                          Aprovação
+                                        </h5>
+                                        <li>
+                                          <a
+                                            class="dropdown-item"
+                                            onClick={() =>
+                                              approveTravel(travel.idViagem)
+                                            }
+                                          >
+                                            <IconCheck
+                                              className="icon me-2"
+                                              stroke={1}
+                                              size={18}
+                                              style={{ marginTop: "-4px" }}
+                                            />
+                                            Aprovar
+                                          </a>
+                                          <a
+                                            class="dropdown-item"
+                                            onClick={() =>
+                                              rejectTravel(travel.idViagem)
+                                            }
+                                          >
+                                            <IconX
+                                              className="icon me-2"
+                                              stroke={1}
+                                              size={18}
+                                              style={{ marginTop: "-4px" }}
+                                            />
+                                            Rejeitar
+                                          </a>
+                                        </li>
+                                      </li>
+                                    </>
                                   )}
                               </ul>
                             </div>

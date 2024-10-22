@@ -1,5 +1,9 @@
 .bg-gradient {
-  background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%) !important;
+  background-image: linear-gradient(
+    to right,
+    #6a11cb 0%,
+    #2575fc 100%
+  ) !important;
 }
 
 .input-group-text {
@@ -50,7 +54,6 @@ td,
 th {
   vertical-align: middle;
 }
-
 
 .btn {
   border-radius: 25px;
