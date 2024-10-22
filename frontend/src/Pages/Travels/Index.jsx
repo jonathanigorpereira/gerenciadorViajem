@@ -514,23 +514,22 @@ export default function Travels_IndexPage() {
                                     Visualizar
                                   </Link>
                                 </li>
-                                {isAdmin &&
-                                  travel.NomeStatusViagem === "Pendente" && (
-                                    <li>
-                                      <Link
-                                        class="dropdown-item"
-                                        to={`/viagens/editar/${travel.idViagem}`}
-                                      >
-                                        <IconPencil
-                                          className="icon me-2"
-                                          stroke={1}
-                                          size={18}
-                                          style={{ marginTop: "-4px" }}
-                                        />
-                                        Editar
-                                      </Link>
-                                    </li>
-                                  )}
+                                {travel.NomeStatusViagem === "Pendente" && (
+                                  <li>
+                                    <Link
+                                      class="dropdown-item"
+                                      to={`/viagens/editar/${travel.idViagem}`}
+                                    >
+                                      <IconPencil
+                                        className="icon me-2"
+                                        stroke={1}
+                                        size={18}
+                                        style={{ marginTop: "-4px" }}
+                                      />
+                                      Editar
+                                    </Link>
+                                  </li>
+                                )}
                                 {isAdmin &&
                                   travel.NomeStatusViagem !== "Aprovado" &&
                                   travel.NomeStatusViagem !== "Reprovado" && (
