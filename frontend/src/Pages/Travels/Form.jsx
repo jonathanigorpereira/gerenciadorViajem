@@ -117,7 +117,7 @@ export default function Travels_FormPage() {
       ...travel,
       idEmpregado: travel.idEmpregado || actualUser.idEmpregado,
       DataInicioViagem: travel.DataInicioViagem || new Date(),
-      DataTerminoViagem: travel.DataTerminoViagem,
+      DataTerminoViagem: travel.DataTerminoViagem || new Date(),
       destinos: Array.isArray(travel.destinos)
         ? travel.destinos.map((destination) => ({
             ...destination,
