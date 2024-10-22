@@ -114,7 +114,10 @@ export default function Travels_FormPage() {
     setProcessing(true);
     setErrorOnProcess(null);
 
-    const updatedTravel = { ...travel, idEmpregado: actualUser.idEmpregado };
+    const updatedTravel = {
+      ...travel,
+      idEmpregado: travel.idEmpregado || actualUser.idEmpregado,
+    };
     try {
       identifier
         ? await EditTravel(identifier, { ...updatedTravel })

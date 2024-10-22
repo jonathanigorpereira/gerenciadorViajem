@@ -23,40 +23,29 @@ export const createViagem = async (data) => {
       destinos,
     } = data;
 
-    // 1. Verificar se o empregado já tem uma viagem em andamento dentro do período ou com intervalo menor que 1 semana
-    const umaSemanaEmMilissegundos = 7 * 24 * 60 * 60 * 1000;
-
-    // Buscar viagens que tenham interseção com a nova viagem proposta
+    // 1. Verificar se o empregado já tem uma viagem em andamento (status 2)
     const viagemEmAndamento = await Viagem.findOne({
       idEmpregado,
-      $or: [
-        {
-          DataInicioViagem: { $lt: new Date(DataTerminoViagem) },
-          DataTerminoViagem: { $gt: new Date(DataInicioViagem) },
-        },
-        {
-          DataInicioViagem: {
-            $gte: new Date(DataTerminoViagem),
-            $lte: new Date(
-              new Date(DataTerminoViagem).getTime() + umaSemanaEmMilissegundos
-            ),
-          },
-        },
-        {
-          DataTerminoViagem: {
-            $gte: new Date(
-              new Date(DataInicioViagem).getTime() - umaSemanaEmMilissegundos
-            ),
-            $lt: new Date(DataInicioViagem),
-          },
-        },
-      ],
+      idStatusViagem: 2,
     });
 
+    const umaSemanaEmMilissegundos = 7 * 24 * 60 * 60 * 1000;
+    // Se encontrar uma viagem com status 2, bloquear a criação
     if (viagemEmAndamento) {
-      throw new Error(
-        "Já existe uma viagem em andamento ou com intervalo menor que uma semana."
-      );
+      const dataTerminoViagemAndamento = new Date(
+        viagemEmAndamento.DataTerminoViagem
+      ).getTime();
+      const dataInicioNovaViagem = new Date(DataInicioViagem).getTime();
+
+      // Verificar se a nova viagem começa dentro do intervalo de 1 semana após o término da viagem em andamento
+      if (
+        dataInicioNovaViagem <=
+        dataTerminoViagemAndamento + umaSemanaEmMilissegundos
+      ) {
+        throw new Error(
+          "Já existe uma viagem em andamento, e a nova viagem deve começar pelo menos 1 semana após o término da viagem em andamento."
+        );
+      }
     }
 
     // 2. Criar a viagem principal
