@@ -80,7 +80,7 @@ const seedMunicipios = async () => {
     console.log("Conexão com MongoDB fechada.");
   } catch (error) {
     console.error("Erro ao verificar ou inserir municípios:", error);
-    mongoose.connection.close(); // Fechar a conexão em caso de erro também
+    mongoose.connection.close();
   }
 };
 

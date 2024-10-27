@@ -9,7 +9,7 @@ import axios from "axios";
 
 function App() {
   // Configurações iniciais do Axios
-  axios.defaults.baseURL = "https://gerenciadorviajem.onrender.com/api/v1";
+  axios.defaults.baseURL = "http://localhost:3333/api/v1";
 
   // Configurando o interceptor para lidar com erros de autenticação
   axios.interceptors.response.use(
