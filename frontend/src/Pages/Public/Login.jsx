@@ -42,7 +42,7 @@ export default function LoginPage() {
       window.history.replaceState({}, document.title, "/");
 
       // Redireciona para o dashboard ou página principal
-      window.location.href = "http://localhost:3000/";
+      window.location.href = "https://gerenciador-viajem.vercel.app/";
     }
   }, [navigate]);
 
